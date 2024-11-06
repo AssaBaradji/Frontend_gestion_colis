@@ -1,11 +1,15 @@
    <template>
   <div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold text-primary title-margin">
+    <h1 class="mb-4 text-center fw-bold title-margin" style="color: #3fb59e">
       Liste des Utilisateurs
     </h1>
 
     <div class="text-end mb-4">
-      <router-link to="/users/add" class="btn btn-primary fw-bold">
+      <router-link
+        to="/users/add"
+        class="btn btn- fw-bold"
+        style="color: white"
+      >
         <i class="fas fa-plus"></i> Ajouter Utilisateur
       </router-link>
     </div>
@@ -71,26 +75,25 @@ onMounted(async () => {
 
 const deleteUser = async id => {
   console.log("ID de l'utilisateur à supprimer :", id)
-  if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-    try {
-      await store.deleteUser(id)
-      toast.success('Utilisateur supprimé avec succès !')
-      await store.fetchUsers()
-    } catch (error) {
-      console.error("Erreur lors de la suppression de l'utilisateur :", error)
-      toast.error("Erreur lors de la suppression de l'utilisateur.")
-    }
+  // if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+  try {
+    await store.deleteUser(id)
+    await store.fetchUsers()
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'utilisateur :", error)
+    toast.error("Erreur lors de la suppression de l'utilisateur.")
   }
 }
+// }
 </script>
   
   <style scoped>
 .text-primary {
   color: #0d6efd;
 }
-.btn-primary {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+.btn- {
+  background-color: #3fb59e;
+  border-color: #3fb59e;
 }
 .btn-outline-info {
   border-color: #17a2b8;

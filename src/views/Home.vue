@@ -1,6 +1,6 @@
 <script setup>
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <template>
@@ -10,24 +10,27 @@ const { t } = useI18n();
       <p class="lead mb-5">{{ t('home_page.description') }}</p>
       <div class="row mt-5">
         <div class="col-md-4 mb-4">
-          <img src="../assets/images/livraison.avif" class="img-fluid img-large rounded" alt="Utilisateurs" />
-          <h5 class="mt-3">{{ t('home_page.user_management') }}</h5>
-          <p>{{ t('home_page.user_management_description') }}</p>
-          <router-link to="/users" class="btn btn-primary">{{ t('home_page.view_users') }}</router-link>
+          <img
+            src="../assets/images/livraison.avif"
+            class="img-fluid img-large rounded"
+            alt="Utilisateurs"
+          />
         </div>
 
         <div class="col-md-4 mb-4">
-          <img src="../assets/images/expedition.jpg" class="img-fluid img-milieu rounded" alt="Expéditions" />
-          <h5 class="mt-3">{{ t('home_page.expedition_management') }}</h5>
-          <p>{{ t('home_page.expedition_management_description') }}</p>
-          <router-link to="/expeditions" class="btn btn-primary">{{ t('home_page.view_expeditions') }}</router-link>
+          <img
+            src="../assets/images/expedition.jpg"
+            class="img-fluid img-milieu rounded"
+            alt="Expéditions"
+          />
         </div>
 
         <div class="col-md-4 mb-4">
-          <img src="../assets/images/colis.jpg" class="img-fluid img-large rounded" alt="Paiements" />
-          <h5 class="mt-3">{{ t('home_page.payment_management') }}</h5>
-          <p>{{ t('home_page.payment_management_description') }}</p>
-          <router-link to="/payments" class="btn btn-primary">{{ t('home_page.view_payments') }}</router-link>
+          <img
+            src="../assets/images/colis.jpg"
+            class="img-fluid img-large rounded"
+            alt="Paiements"
+          />
         </div>
       </div>
     </div>
@@ -53,3 +56,4 @@ const { t } = useI18n();
 }
 </style>
 
+ 

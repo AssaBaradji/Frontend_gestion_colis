@@ -25,6 +25,19 @@ export const messages = {
         packageTypes: 'Parcel Type',
       },
     },
+    parcels: {
+      editTitle: 'Edit Parcel',
+      editForm: {
+        code: 'Parcel Code',
+        price: 'Price',
+        date: 'Registration Date',
+        description: 'Description',
+        location: 'Location',
+        user: 'User',
+        type: 'Parcel Type',
+        save: 'Save',
+      },
+    },
   },
   fr: {
     home_page: {
@@ -52,6 +65,19 @@ export const messages = {
         deliveries: 'Livraisons',
         paymentMethods: 'Méthodes de Paiement',
         packageTypes: 'Types de colis',
+      },
+    },
+    parcels: {
+      editTitle: 'Modifier le Colis',
+      editForm: {
+        code: 'Code du Colis',
+        price: 'Prix',
+        date: "Date d'Enregistrement",
+        description: 'Description',
+        location: 'Emplacement',
+        user: 'Utilisateur',
+        type: 'Type de Colis',
+        save: 'Enregistrer',
       },
     },
   },

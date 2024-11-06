@@ -63,17 +63,14 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const deleteUser = async id => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       try {
         await axios.delete(`http://localhost:3000/utilisateurs/${id}`)
         users.value = users.value.filter(user => user.id !== id)
         console.log('Utilisateur supprimé :', id)
-        showToast('success', 'Utilisateur supprimé avec succès !')
       } catch (error) {
         console.error("Erreur lors de la suppression de l'utilisateur :", error)
         showToast('error', "Erreur lors de la suppression de l'utilisateur.")
-      }
-    }
+      }  
   }
 
   const userById = id => {

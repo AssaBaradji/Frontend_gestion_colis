@@ -1,82 +1,62 @@
-   <template>
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold text-primary">
-      Ajouter un Utilisateur
-    </h1>
-
-    <div class="p-4 bg-light rounded shadow-sm">
+<template>
+  <div class="form-wrapper">
+    <h1 class="text-center">Ajouter un Utilisateur</h1>
+    <div class="form-box">
       <form @submit.prevent="addUser">
-        <div class="mb-3">
-          <label for="nom" class="form-label fw-bold text-primary">Nom:</label>
+        <div class="form-group">
+          <label for="nom">Nom</label>
           <input
             type="text"
             id="nom"
-            class="form-control"
             v-model="user.nom"
-            placeholder="Entrez le nom"
+            placeholder="Nom"
             required
           />
         </div>
 
-        <div class="mb-3">
-          <label for="email" class="form-label fw-bold text-primary"
-            >Email:</label
-          >
+        <div class="form-group">
+          <label for="email">Email</label>
           <input
             type="email"
             id="email"
-            class="form-control"
             v-model="user.email"
-            placeholder="Entrez l'email"
+            placeholder="Email"
             required
           />
         </div>
 
-        <div class="mb-3">
-          <label for="mot_de_passe" class="form-label fw-bold text-primary"
-            >Mot de Passe:</label
-          >
+        <div class="form-group">
+          <label for="mot_de_passe">Mot de Passe</label>
           <input
             type="password"
             id="mot_de_passe"
-            class="form-control"
             v-model="user.mot_de_passe"
-            placeholder="Entrez le mot de passe"
+            placeholder="Mot de passe"
             required
           />
         </div>
 
-        <div class="mb-3">
-          <label for="role" class="form-label fw-bold text-primary"
-            >Rôle:</label
-          >
-          <select id="role" class="form-select" v-model="user.role" required>
+        <div class="form-group">
+          <label for="role">Rôle</label>
+          <select id="role" v-model="user.role" required>
             <option value="" disabled selected>Choisissez un rôle</option>
             <option value="Admis">Admis</option>
             <option value="Agent">Agent</option>
           </select>
         </div>
-        <div class="form-check mb-4">
-          <input
-            type="checkbox"
-            id="statut"
-            class="form-check-input"
-            v-model="user.statut"
-          />
-          <label for="statut" class="form-check-label text-primary"
-            >Statut actif</label
-          >
+
+        <div class="form-check">
+          <input type="checkbox" id="statut" v-model="user.statut" />
+          <label for="statut">Statut actif</label>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 fw-bold">
-          <i class="fas fa-save"></i> Ajouter Utilisateur
-        </button>
+        <button type="submit" class="submit-btn">Ajouter Utilisateur</button>
       </form>
     </div>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import { ref } from 'vue'
 import { useUserStore } from '@/store/userStore'
 import { useRouter } from 'vue-router'
@@ -97,35 +77,94 @@ const user = ref({
 const addUser = async () => {
   try {
     await store.addUser(user.value)
-    toast.success('Utilisateur ajouté avec succès !')
     await store.fetchUsers()
     router.push('/users')
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'utilisateur :", error)
-    toast.error(
-      "Erreur lors de l'ajout de l'utilisateur. Vérifiez les champs et réessayez."
-    )
+    toast.error("Erreur lors de l'ajout de l'utilisateur.")
   }
 }
 </script>
-  
-  <style scoped>
+
+<style scoped>
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-block-size: 100vh;
+  background-color: #f4f7f6;
+}
+
 h1 {
-  color: #007bff;
+  color: #3fb59e;
+  font-size: 1.5rem;
+  margin-block-end: 1rem;
 }
 
-.form-label {
-  color: #007bff;
+.form-box {
+  inline-size: 100%;
+  max-inline-size: 400px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-block-end: 15px;
 }
 
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
+.form-group label {
+  color: #3fb59e;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #3fb59e;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-block-end: 20px;
+}
+
+.form-check input {
+  margin-inline-end: 5px;
+}
+
+.form-check label {
+  color: #959e89;
+}
+
+.submit-btn {
+  inline-size: 100%;
+  padding: 10px;
+  background-color: #3fb59e;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #349d87;
 }
 </style>
-  

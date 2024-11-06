@@ -1,10 +1,16 @@
-   <template>
-  <div class="container mt-5">
+<template>
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
     <div v-if="isLoading" class="text-center">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
     </div>
 
-    <div v-else class="p-4 bg-light rounded shadow-sm">
+    <div
+      v-else
+      class="p-4 bg-light rounded shadow-sm"
+      style="max-inline-size: 600px; inline-size: 100%"
+    >
       <h3 :style="{ color: primaryColor }">{{ t('users.editTitle') }}</h3>
       <form @submit.prevent="updateUser">
         <div class="input-group mb-4">
@@ -104,8 +110,8 @@
     </div>
   </div>
 </template>
-  
-  <script setup>
+    
+    <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/userStore'
@@ -118,9 +124,8 @@ const route = useRoute()
 const user = ref({})
 const isLoading = ref(true)
 
-
-const primaryColor = '#007BFF' 
-const textColor = '#FFFFFF' 
+const primaryColor = '#3fb59e'
+const textColor = '#FFFFFF'
 
 const loadUser = async () => {
   try {
@@ -149,10 +154,10 @@ const updateUser = async () => {
   }
 }
 </script>
-  
-  <style scoped>
-
+    
+    <style scoped>
+.container {
+  min-block-size: 100vh;
+}
 </style>
-  
-  
-  
+    
