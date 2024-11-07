@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import { useAuthStore } from './authStore'
 
 const toast = useToast()
 
@@ -16,12 +17,18 @@ const showToast = (type, message) => {
 export const usePaymentMethodStore = defineStore('paymentMethodStore', () => {
   const paymentMethods = ref([])
   const loading = ref(false)
+  const auth = useAuthStore();
 
   const fetchPaymentMethods = async () => {
+    const auth = useAuthStore();
     loading.value = true
     try {
       const response = await axios.get(
-        'http://localhost:3000/methodes-paiement',
+        'http://localhost:3000/methodes-paiement',{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       paymentMethods.value = response.data
       console.log('Méthodes de paiement chargées :', paymentMethods.value)
@@ -37,10 +44,15 @@ export const usePaymentMethodStore = defineStore('paymentMethodStore', () => {
   }
 
   const addPaymentMethod = async method => {
+    const auth = useAuthStore();
     try {
       const response = await axios.post(
         'http://localhost:3000/methodes-paiement',
-        method,
+        method,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       paymentMethods.value.push(response.data)
       showToast('success', 'Méthode de paiement ajoutée avec succès !')
@@ -51,10 +63,15 @@ export const usePaymentMethodStore = defineStore('paymentMethodStore', () => {
   }
 
   const updatePaymentMethod = async updatedMethod => {
+    const auth = useAuthStore();
     try {
       const response = await axios.put(
         `http://localhost:3000/methodes-paiement/${updatedMethod.id}`,
-        updatedMethod,
+        updatedMethod,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       const index = paymentMethods.value.findIndex(
         method => method.id === updatedMethod.id,
@@ -77,8 +94,13 @@ export const usePaymentMethodStore = defineStore('paymentMethodStore', () => {
   }
 
   const deletePaymentMethod = async id => {
+    const auth = useAuthStore();
     try {
-      await axios.delete(`http://localhost:3000/methodes-paiement/${id}`)
+      await axios.delete(`http://localhost:3000/methodes-paiement/${id}`,{
+        headers:{
+          Authorization:`Barear ${auth.token}`
+        }
+      })
       paymentMethods.value = paymentMethods.value.filter(
         method => method.id !== id,
       )

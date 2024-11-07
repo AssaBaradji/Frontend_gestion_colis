@@ -4,153 +4,112 @@
   >
     <div v-if="isLoading" class="text-center">
       <i
-        class="fas fa-spinner fa-spin fa-2x"
+        class="fas fa-spinner fa-spin fa-3x"
         :style="{ color: primaryColor }"
       ></i>
     </div>
 
-    <div
-      v-else
-      class="p-4 bg-light rounded shadow-sm form-container"
-      style="max-inline-size: 800px; inline-size: 100%"
-    >
-      <h3 class="text-center mb-4" :style="{ color: primaryColor }">
+    <div v-else class="p-5 bg-white rounded-4 shadow-lg form-container">
+      <h3 class="text-center mb-4 fw-bold" :style="{ color: primaryColor }">
         {{ t('parcels.editTitle') }}
       </h3>
       <form @submit.prevent="updateParcel">
-        <div class="row">
+        <div class="row gx-5">
           <div class="col-md-6">
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-box"></i>&nbsp;{{ t('parcels.editForm.code') }}
-              </span>
+            <div class="form-floating mb-4">
               <input
                 type="text"
+                id="code_colis"
                 class="form-control"
                 v-model="parcel.code_colis"
                 placeholder="Code du colis"
-                :style="{ borderColor: primaryColor }"
                 required
               />
+              <label for="code_colis">
+                <i class="fas fa-box me-2"></i>{{ t('parcels.editForm.code') }}
+              </label>
             </div>
 
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-dollar-sign"></i>&nbsp;{{
-                  t('parcels.editForm.price')
-                }}
-              </span>
+            <div class="form-floating mb-4">
               <input
                 type="number"
+                id="prix"
                 class="form-control"
                 v-model="parcel.prix"
                 placeholder="Prix"
                 step="0.01"
-                :style="{ borderColor: primaryColor }"
                 required
               />
+              <label for="prix">
+                <i class="fas fa-dollar-sign me-2"></i
+                >{{ t('parcels.editForm.price') }}
+              </label>
             </div>
 
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-calendar-alt"></i>&nbsp;{{
-                  t('parcels.editForm.date')
-                }}
-              </span>
+            <div class="form-floating mb-4">
               <input
                 type="date"
+                id="date_enregistrement"
                 class="form-control"
                 v-model="parcel.date_enregistrement"
-                :style="{ borderColor: primaryColor }"
                 required
               />
+              <label for="date_enregistrement">
+                <i class="fas fa-calendar-alt me-2"></i
+                >{{ t('parcels.editForm.date') }}
+              </label>
             </div>
-
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-user"></i>&nbsp;{{
-                  t('parcels.editForm.user')
-                }}
-              </span>
-              <select
-                class="form-select"
-                v-model="parcel.utilisateurId"
-                :style="{ borderColor: primaryColor }"
-                required
-              >
-                <option value="" disabled selected>
-                  Choisissez un utilisateur
-                </option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nom }}
-                </option>
-              </select>
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="utilisateur"
+                class="form-control"
+                :value="loadedUser.nom"
+                placeholder="Utilisateur"
+                readonly
+              />
+              <label for="utilisateur">
+                <i class="fas fa-user me-2"></i>{{ t('parcels.editForm.user') }}
+              </label>
             </div>
           </div>
 
           <div class="col-md-6">
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-align-left"></i>&nbsp;{{
-                  t('parcels.editForm.description')
-                }}
-              </span>
+            <div class="form-floating mb-4">
               <textarea
+                id="description"
                 class="form-control"
                 v-model="parcel.description"
                 placeholder="Description"
-                :style="{ borderColor: primaryColor }"
+                style="block-size: 100px"
                 required
               ></textarea>
+              <label for="description">
+                <i class="fas fa-align-left me-2"></i
+                >{{ t('parcels.editForm.description') }}
+              </label>
             </div>
 
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-map-marker-alt"></i>&nbsp;{{
-                  t('parcels.editForm.location')
-                }}
-              </span>
+            <div class="form-floating mb-4">
               <input
                 type="text"
+                id="emplacement_colis"
                 class="form-control"
                 v-model="parcel.emplacement_colis"
                 placeholder="Emplacement"
-                :style="{ borderColor: primaryColor }"
                 required
               />
+              <label for="emplacement_colis">
+                <i class="fas fa-map-marker-alt me-2"></i
+                >{{ t('parcels.editForm.location') }}
+              </label>
             </div>
 
-            <div class="input-group mb-4">
-              <span
-                class="input-group-text"
-                :style="{ backgroundColor: primaryColor, color: textColor }"
-              >
-                <i class="fas fa-tags"></i>&nbsp;{{
-                  t('parcels.editForm.type')
-                }}
-              </span>
+            <div class="form-floating mb-4">
               <select
+                id="typeId"
                 class="form-select"
                 v-model="parcel.typeId"
-                :style="{ borderColor: primaryColor }"
                 required
               >
                 <option value="" disabled selected>
@@ -160,16 +119,19 @@
                   {{ type.nom }}
                 </option>
               </select>
+              <label for="typeId">
+                <i class="fas fa-tags me-2"></i>{{ t('parcels.editForm.type') }}
+              </label>
             </div>
           </div>
         </div>
 
         <button
-          class="btn w-100 fw-bold mt-4"
+          class="btn w-100 py-2 fw-bold mt-4 shadow-sm"
           type="submit"
           :style="{ backgroundColor: primaryColor, color: textColor }"
         >
-          <i class="fas fa-save"></i> {{ t('parcels.editForm.save') }}
+          <i class="fas fa-save me-2"></i>{{ t('parcels.editForm.save') }}
         </button>
       </form>
     </div>
@@ -177,7 +139,7 @@
 </template>
   
   <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useParcelStore } from '@/store/parcelStore'
 import { useUserStore } from '@/store/userStore'
@@ -196,6 +158,7 @@ const toast = useToast()
 const parcel = ref({})
 const users = ref([])
 const types = ref([])
+const loadedUser = ref({})
 const isLoading = ref(true)
 
 const primaryColor = '#3fb59e'
@@ -208,8 +171,9 @@ onMounted(async () => {
     await userStore.fetchUsers()
 
     parcel.value = parcelStore.parcelById(route.params.id)
-    users.value = userStore.users
     types.value = typeColisStore.types
+    loadedUser.value =
+      userStore.users.find(user => user.id === parcel.value.utilisateurId) || {}
 
     if (!parcel.value) {
       router.push('/parcels')
@@ -240,11 +204,35 @@ const updateParcel = async () => {
 }
 
 .form-container {
-  max-inline-size: 800px;
+  max-inline-size: 900px;
+  background-color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.input-group-text {
-  min-inline-size: 150px;
+.form-floating label {
+  color: #6c757d;
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #36a290;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
 }
 </style>
   

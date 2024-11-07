@@ -69,7 +69,7 @@
     </table>
   </div>
 </template> 
-  <script setup>
+<script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useParcelStore } from '@/store/parcelStore.js'
 import { useTypeColisStore } from '@/store/parcelTypeStore.js'
@@ -85,7 +85,7 @@ const parcels = ref([])
 const types = ref([])
 const users = ref([])
 
-onMounted(async () => {
+const fetchAndMapParcels = async () => {
   try {
     await store.fetchParcels()
     await typeStore.fetchTypesColis()
@@ -98,14 +98,13 @@ onMounted(async () => {
       ),
       type: typeStore.types.find(type => type.id === parcel.typeId),
     }))
-
-    types.value = typeStore.types
-    users.value = userStore.users
   } catch (error) {
     console.error('Erreur lors du chargement des données :', error)
     toast.error('Erreur lors du chargement des données.')
   }
-})
+}
+
+onMounted(fetchAndMapParcels)
 
 const selectedType = ref('')
 const filteredParcels = computed(() =>
@@ -119,7 +118,8 @@ const filteredParcels = computed(() =>
 const deleteParcel = async id => {
   try {
     await store.deleteParcel(id)
-    await store.fetchParcels()
+    await fetchAndMapParcels()
+    toast.success('Colis supprimé avec succès.')
   } catch (error) {
     console.error('Erreur lors de la suppression du colis :', error)
     toast.error('Erreur lors de la suppression du colis.')

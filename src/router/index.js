@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/store/authStore.js'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import AddUser from '@/components/user/AddUser.vue'
@@ -38,131 +39,168 @@ import EditDelivery from '@/components/delivery/EditDelivery.vue'
 import ShowDelivery from '@/components/delivery/ShowDelivery.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
+  { path: '/', name: 'Home', component: Home, meta: { requiresAuth: true } },
   { path: '/login', name: 'Login', component: Login },
 
-  { path: '/users', name: 'ListUser', component: UserList },
-  { path: '/users/add', name: 'AddUser', component: AddUser },
+  {
+    path: '/users',
+    name: 'ListUser',
+    component: UserList,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/users/add',
+    name: 'AddUser',
+    component: AddUser,
+    meta: { requiresAuth: true },
+  },
   {
     path: '/users/edit/:id',
     name: 'EditUser',
     component: EditUser,
     props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: '/users/show/:id',
     name: 'ShowUser',
     component: ShowUser,
     props: true,
+    meta: { requiresAuth: true },
   },
 
-  { path: '/parcels', name: 'ParcelList', component: ParcelList },
+  { path: '/parcels', name: 'ParcelList', component: ParcelList , meta: { requiresAuth: true } },
   { path: '/parcels/add', name: 'AddParcel', component: AddParcel },
   {
     path: '/parcels/edit/:id',
     name: 'EditParcel',
     component: EditParcel,
     props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/parcels/show/:id',
     name: 'ShowParcel',
     component: ShowParcel,
     props: true,
+    meta: { requiresAuth: true }
   },
 
-  { path: '/parcel-types', name: 'ParcelTypeList', component: ParcelTypeList },
+  { path: '/parcel-types', name: 'ParcelTypeList', component: ParcelTypeList, meta: { requiresAuth: true } },
   {
     path: '/parcel-types/add',
     name: 'AddParcelType',
     component: AddParcelType,
+    meta: { requiresAuth: true }
   },
   {
     path: '/parcel-types/edit/:id',
     name: 'EditParcelType',
     component: EditParcelType,
     props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/parcel-types/show/:id',
     name: 'ShowParcelType',
     component: ShowParcelType,
     props: true,
+    meta: { requiresAuth: true }
   },
 
-  { path: '/shipments', name: 'ShipmentList', component: ShipmentList },
-  { path: '/shipments/add', name: 'AddShipment', component: AddShipment },
+  { path: '/shipments', name: 'ShipmentList', component: ShipmentList, meta: { requiresAuth: true } },
+  { path: '/shipments/add', name: 'AddShipment', component: AddShipment, meta: { requiresAuth: true } },
   {
     path: '/shipments/edit/:id',
     name: 'EditShipment',
     component: EditShipment,
     props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/shipments/show/:id',
     name: 'ShowShipment',
     component: ShowShipment,
     props: true,
+    meta: { requiresAuth: true }
   },
 
   {
     path: '/payment-methods',
     name: 'PaymentMethodList',
     component: PaymentMethodList,
+    meta: { requiresAuth: true }
   },
   {
     path: '/payment-methods/add',
     name: 'AddPaymentMethod',
     component: AddPaymentMethod,
+    meta: { requiresAuth: true }
   },
   {
     path: '/payment-methods/edit/:id',
     name: 'EditPaymentMethod',
     component: EditPaymentMethod,
     props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/payment-methods/show/:id',
     name: 'ShowPaymentMethod',
     component: ShowPaymentMethod,
     props: true,
+    meta: { requiresAuth: true }
   },
 
-  { path: '/payments', name: 'PaymentList', component: PaymentList },
-  { path: '/payments/add', name: 'AddPayment', component: AddPayment },
+  { path: '/payments', name: 'PaymentList', component: PaymentList, meta: { requiresAuth: true } },
+  { path: '/payments/add', name: 'AddPayment', component: AddPayment, meta: { requiresAuth: true } },
   {
     path: '/payments/edit/:id',
     name: 'EditPayment',
     component: EditPayment,
     props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/payments/show/:id',
     name: 'ShowPayment',
     component: ShowPayment,
     props: true,
+    meta: { requiresAuth: true }
   },
 
   // Routes pour les livraisons
-  { path: '/delivery', name: 'DeliveryList', component: DeliveryList },
-  { path: '/delivery/add', name: 'AddDelivery', component: AddDelivery },
+  { path: '/delivery', name: 'DeliveryList', component: DeliveryList, meta: { requiresAuth: true } },
+  { path: '/delivery/add', name: 'AddDelivery', component: AddDelivery, meta: { requiresAuth: true } },
   {
     path: '/delivery/edit/:id',
     name: 'EditDelivery',
     component: EditDelivery,
     props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/delivery/show/:id',
     name: 'ShowDelivery',
     component: ShowDelivery,
     props: true,
+    meta: { requiresAuth: true }
   },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// Garde de navigation pour vérifier l'authentification
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router

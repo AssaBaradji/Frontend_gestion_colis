@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="container-fluid"
-  >
+  <div class="container-fluid">
     <div
       class="modal fade"
       id="parcelModal"
@@ -14,7 +12,7 @@
       aria-hidden="true"
     >
       <div
-        class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+        class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"
         role="document"
       >
         <div class="modal-content">
@@ -35,38 +33,38 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label class="form-label">Nom du Destinataire:</label>
+                    <label class="form-label">Code Colis:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.nom_destinataire"
+                      :value="parcel.code_colis"
                       readonly
                     />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Prénom du Destinataire:</label>
+                    <label class="form-label">Prix:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.prenom_destinataire"
+                      :value="parcel.prix"
                       readonly
                     />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Téléphone:</label>
+                    <label class="form-label">Description:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.telephone_destinataire"
+                      :value="parcel.description"
                       readonly
                     />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Utilisateur:</label>
+                    <label class="form-label">Emplacement Colis:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.utilisateur ? parcel.utilisateur.nom : 'Non attribué'"
+                      :value="parcel.emplacement_colis"
                       readonly
                     />
                   </div>
@@ -74,29 +72,41 @@
 
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label class="form-label">Destination:</label>
+                    <label class="form-label">Utilisateur:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.destination"
+                      :value="
+                        parcel.utilisateur
+                          ? parcel.utilisateur.nom
+                          : 'Non attribué'
+                      "
                       readonly
                     />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Date d'Expédition:</label>
+                    <label class="form-label">Type de Colis:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.date_expedition"
+                      :value="
+                        parcel.typeColis
+                          ? parcel.typeColis.nom
+                          : 'Type de colis non défini'
+                      "
                       readonly
                     />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Colis:</label>
+                    <label class="form-label">Date d'Enregistrement:</label>
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.code_colis ? parcel.code_colis : 'Non attribué'"
+                      :value="
+                        new Date(
+                          parcel.date_enregistrement
+                        ).toLocaleDateString()
+                      "
                       readonly
                     />
                   </div>
@@ -122,15 +132,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useParcelStore } from '@/store/parcelStore.js'
+import { useUserStore } from '@/store/userStore.js'
+import { useTypeColisStore } from '@/store/parcelTypeStore.js'
 import { useRouter, useRoute } from 'vue-router'
 import { Modal } from 'bootstrap'
 
-const store = useParcelStore()
+const parcelStore = useParcelStore()
+const userStore = useUserStore()
+const typeStore = useTypeColisStore()
 const router = useRouter()
 const route = useRoute()
 
+// Obtenir le colis par ID
 const parcel = ref(null)
 const parcelModal = ref(null)
 
@@ -138,19 +153,38 @@ const closeModal = () => {
   router.push('/parcels')
 }
 
+// Charger les données du colis avec les informations d'utilisateur et de type
 onMounted(async () => {
-  // Chargez les colis et récupérez le colis par ID
-  await store.fetchParcels()
-  parcel.value = store.parcelById(route.params.id)
+  try {
+    // Charger les colis, types et utilisateurs
+    await parcelStore.fetchParcels()
+    await userStore.fetchUsers()
+    await typeStore.fetchTypesColis()
 
-  // Vérifiez si le colis est chargé avant d'afficher le modal
-  if (parcel.value) {
-    const modalElement = parcelModal.value
-    const bootstrapModal = new Modal(modalElement)
-    bootstrapModal.show()
-  } else {
-    console.error('Colis non trouvé')
-    closeModal() // Ferme le modal si le colis n'est pas trouvé
+    // Récupérer le colis par ID
+    parcel.value = parcelStore.parcelById(route.params.id)
+
+    // Associer les informations utilisateur et typeColis
+    if (parcel.value) {
+      parcel.value.utilisateur =
+        userStore.users.find(user => user.id === parcel.value.utilisateurId) ||
+        null
+      parcel.value.typeColis =
+        typeStore.types.find(type => type.id === parcel.value.typeId) || null
+
+      // Affichez le modal
+      const modalElement = parcelModal.value
+      const bootstrapModal = new Modal(modalElement)
+      bootstrapModal.show()
+    } else {
+      console.error('Colis non trouvé')
+      closeModal()
+    }
+  } catch (error) {
+    console.error(
+      'Erreur lors de la récupération des données pour le colis :',
+      error
+    )
   }
 })
 </script>
@@ -171,10 +205,6 @@ onMounted(async () => {
 
 .modal-footer {
   border: none;
-}
-
-.text-center {
-  text-align: center;
 }
 
 .parcel-details-form .form-label {

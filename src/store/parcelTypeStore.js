@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import { useAuthStore } from './authStore';
 
 const toast = useToast()
 
@@ -16,12 +17,18 @@ const showToast = (type, message) => {
 export const useTypeColisStore = defineStore('typeColisStore', () => {
   const types = ref([])
   const loading = ref(false)
+  const auth = useAuthStore();
 
-  // Récupère la liste des types de colis
+  
   const fetchTypesColis = async () => {
+    const auth = useAuthStore();
     loading.value = true
     try {
-      const response = await axios.get('http://localhost:3000/types-colis')
+      const response = await axios.get('http://localhost:3000/types-colis',{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       types.value = response.data
       console.log('Types de colis chargés :', types.value)
     } catch (error) {
@@ -32,10 +39,15 @@ export const useTypeColisStore = defineStore('typeColisStore', () => {
     }
   }
 
-  // Ajoute un nouveau type de colis
+
   const addTypeColis = async type => {
+    const auth = useAuthStore();
     try {
-      const response = await axios.post('http://localhost:3000/types-colis', type)
+      const response = await axios.post('http://localhost:3000/types-colis', type,{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       types.value.push(response.data)
       showToast('success', 'Type de colis ajouté avec succès !')
     } catch (error) {
@@ -44,10 +56,15 @@ export const useTypeColisStore = defineStore('typeColisStore', () => {
     }
   }
 
-  // Met à jour un type de colis existant
+
   const updateTypeColis = async updatedType => {
+    const auth = useAuthStore();
     try {
-      const response = await axios.put(`http://localhost:3000/types-colis/${updatedType.id}`, updatedType)
+      const response = await axios.put(`http://localhost:3000/types-colis/${updatedType.id}`, updatedType,{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       const index = types.value.findIndex(type => type.id === updatedType.id)
       if (index !== -1) {
         types.value[index] = response.data
@@ -60,10 +77,15 @@ export const useTypeColisStore = defineStore('typeColisStore', () => {
     }
   }
 
-  // Supprime un type de colis
+
   const deleteTypeColis = async id => {
+    const auth = useAuthStore();
     try {
-      await axios.delete(`http://localhost:3000/types-colis/${id}`)
+      await axios.delete(`http://localhost:3000/types-colis/${id}`,{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       types.value = types.value.filter(type => type.id !== id)
       console.log('Type de colis supprimé :', id)
       showToast('success', 'Type de colis supprimé avec succès !')
@@ -73,7 +95,7 @@ export const useTypeColisStore = defineStore('typeColisStore', () => {
     }
   }
 
-  // Récupère un type de colis par ID
+
   const typeColisById = id => {
     return types.value.find(type => type.id === parseInt(id))
   }

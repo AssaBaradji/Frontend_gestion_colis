@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import { useAuthStore } from './authStore' 
+
 
 const toast = useToast()
 
@@ -13,14 +15,19 @@ const showToast = (type, message) => {
   }
 }
 
-export const useShipmentStore = defineStore('shipmentStore', () => { // Utilisez `useShipmentStore` ici
+export const useShipmentStore = defineStore('shipmentStore', () => { 
   const shipments = ref([])
   const loading = ref(false)
+  const auth = useAuthStore();
 
   const fetchShipments = async () => {
     loading.value = true
     try {
-      const response = await axios.get('http://localhost:3000/expeditions')
+      const response = await axios.get('http://localhost:3000/expeditions',{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       shipments.value = response.data
       console.log('Expéditions chargées :', shipments.value)
     } catch (error) {
@@ -32,10 +39,15 @@ export const useShipmentStore = defineStore('shipmentStore', () => { // Utilisez
   }
 
   const addShipment = async shipment => {
+    const auth = useAuthStore();
     try {
       const response = await axios.post(
         'http://localhost:3000/expeditions',
-        shipment,
+        shipment,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       shipments.value.push(response.data)
       showToast('success', 'Expédition ajoutée avec succès !')
@@ -46,10 +58,15 @@ export const useShipmentStore = defineStore('shipmentStore', () => { // Utilisez
   }
 
   const updateShipment = async updatedShipment => {
+    const auth = useAuthStore();
     try {
       const response = await axios.put(
         `http://localhost:3000/expeditions/${updatedShipment.id}`,
-        updatedShipment,
+        updatedShipment,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       const index = shipments.value.findIndex(
         shipment => shipment.id === updatedShipment.id,
@@ -66,8 +83,13 @@ export const useShipmentStore = defineStore('shipmentStore', () => { // Utilisez
   }
 
   const deleteShipment = async id => {
+    const auth = useAuthStore();
     try {
-      await axios.delete(`http://localhost:3000/expeditions/${id}`)
+      await axios.delete(`http://localhost:3000/expeditions/${id}`,{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       shipments.value = shipments.value.filter(shipment => shipment.id !== id)
       console.log('Expédition supprimée :', id)
       showToast('success', 'Expédition supprimée avec succès !')

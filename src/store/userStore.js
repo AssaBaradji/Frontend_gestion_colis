@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import { useAuthStore } from './authStore'
 
 const toast = useToast()
 
@@ -18,9 +19,14 @@ export const useUserStore = defineStore('userStore', () => {
   const loading = ref(false)
 
   const fetchUsers = async () => {
+    const auth = useAuthStore();
     loading.value = true
     try {
-      const response = await axios.get('http://localhost:3000/utilisateurs')
+      const response = await axios.get('http://localhost:3000/utilisateurs',{
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      })
       users.value = response.data
       console.log('Utilisateurs chargés :', users.value)
     } catch (error) {
@@ -32,10 +38,15 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const addUser = async user => {
+    const auth = useAuthStore();
     try {
       const response = await axios.post(
         'http://localhost:3000/utilisateurs/register',
-        user,
+        user,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       users.value.push(response.data)
       showToast('success', 'Utilisateur ajouté avec succès !')
@@ -45,10 +56,15 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const updateUser = async updatedUser => {
+    const auth = useAuthStore();
     try {
       const response = await axios.put(
         `http://localhost:3000/utilisateurs/${updatedUser.id}`,
-        updatedUser,
+        updatedUser,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       const index = users.value.findIndex(user => user.id === updatedUser.id)
       if (index !== -1) {
@@ -63,8 +79,13 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const deleteUser = async id => {
+    const auth = useAuthStore();
       try {
-        await axios.delete(`http://localhost:3000/utilisateurs/${id}`)
+        await axios.delete(`http://localhost:3000/utilisateurs/${id}`,{
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        })
         users.value = users.value.filter(user => user.id !== id)
         console.log('Utilisateur supprimé :', id)
       } catch (error) {

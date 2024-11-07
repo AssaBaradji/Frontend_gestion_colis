@@ -128,15 +128,17 @@
             </button>
           </li>
 
-          <li class="nav-item">
-            <select class="form-select me-2" @change="changeLanguage">
-              <option value="fr" selected>Français</option>
-              <option value="en">English</option>
-            </select>
-          </li>
-
           <li class="nav-item ms-5">
+            <button
+              v-if="isAuthenticated"
+              @click="handleLogout"
+              class="btn btn-outline-light me-2 font-weight-bold"
+            >
+              <font-awesome-icon icon="sign-out-alt" class="me-2" />
+              Déconnexion
+            </button>
             <router-link
+              v-else
               to="/login"
               class="btn btn-outline-light me-2 font-weight-bold"
               :class="{ active: activeRoute.value === '/login' }"
@@ -159,19 +161,31 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/store/authStore.js' 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 
+library.add(faSignOutAlt)
 const router = useRouter()
 const route = useRoute()
 const activeRoute = ref(route.path)
 
-const setActiveRoute = path => {
+const authStore = useAuthStore()
+const isAuthenticated = authStore.isAuthenticated
+
+const setActiveRoute = (path) => {
   activeRoute.value = path
   router.push(path)
 }
 
 const { locale } = useI18n()
-const changeLanguage = event => {
+const changeLanguage = (event) => {
   locale.value = event.target.value
+}
+
+const handleLogout = () => {
+  authStore.logout()
 }
 </script>
 
@@ -213,4 +227,3 @@ const changeLanguage = event => {
   background-color: rgba(255, 255, 255, 0.1);
 }
 </style>
-

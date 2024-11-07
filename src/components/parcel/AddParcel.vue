@@ -10,7 +10,7 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label for="code_colis" class="form-label fw-bold text-primary"
-                >Code Colis:</label
+                >Code Colis :</label
               >
               <input
                 type="text"
@@ -24,7 +24,7 @@
 
             <div class="mb-3">
               <label for="prix" class="form-label fw-bold text-primary"
-                >Prix:</label
+                >Prix :</label
               >
               <input
                 type="number"
@@ -40,7 +40,7 @@
               <label
                 for="date_enregistrement"
                 class="form-label fw-bold text-primary"
-                >Date d'Enregistrement:</label
+                >Date d'Enregistrement :</label
               >
               <input
                 type="date"
@@ -55,7 +55,7 @@
               <label
                 for="emplacement_colis"
                 class="form-label fw-bold text-primary"
-                >Emplacement:</label
+                >Emplacement :</label
               >
               <input
                 type="text"
@@ -71,7 +71,7 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label for="description" class="form-label fw-bold text-primary"
-                >Description:</label
+                >Description :</label
               >
               <textarea
                 id="description"
@@ -83,27 +83,8 @@
             </div>
 
             <div class="mb-3">
-              <label for="utilisateurId" class="form-label fw-bold text-primary"
-                >Utilisateur:</label
-              >
-              <select
-                id="utilisateurId"
-                class="form-select"
-                v-model="parcel.utilisateurId"
-                required
-              >
-                <option value="" disabled selected>
-                  Choisissez un utilisateur
-                </option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nom }}
-                </option>
-              </select>
-            </div>
-
-            <div class="mb-3">
               <label for="typeId" class="form-label fw-bold text-primary"
-                >Type de Colis:</label
+                >Type de Colis :</label
               >
               <select
                 id="typeId"
@@ -129,18 +110,18 @@
     </div>
   </div>
 </template>
-  
+    
   <script setup>
 import { ref, onMounted } from 'vue'
 import { useParcelStore } from '@/store/parcelStore.js'
 import { useTypeColisStore } from '@/store/parcelTypeStore.js'
-import { useUserStore } from '@/store/userStore.js'
+import { useAuthStore } from '@/store/authStore.js'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 const parcelStore = useParcelStore()
-const userStore = useUserStore()
 const typeStore = useTypeColisStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 
@@ -150,42 +131,40 @@ const parcel = ref({
   date_enregistrement: '',
   emplacement_colis: '',
   description: '',
-  utilisateurId: '',
+  utilisateurId: authStore.currentUser?.id || null,
   typeId: '',
 })
 
-const users = ref([])
 const types = ref([])
 
 onMounted(async () => {
   try {
-    await userStore.fetchUsers()
     await typeStore.fetchTypesColis()
-    users.value = userStore.users
     types.value = typeStore.types
+
+    if (!parcel.value.utilisateurId && authStore.currentUser) {
+      parcel.value.utilisateurId = authStore.currentUser.id
+    }
   } catch (error) {
-    console.error(
-      'Erreur lors du chargement des utilisateurs ou des types :',
-      error
-    )
-    toast.error('Erreur lors du chargement des utilisateurs ou des types.')
+    console.error('Erreur lors du chargement des types de colis :', error)
+    toast.error('Erreur lors du chargement des types de colis.')
   }
 })
 
 const addParcel = async () => {
-  try {
-    await parcelStore.addParcel(parcel.value)
-    router.push('/parcels')
+  const result = await parcelStore.addParcel(parcel.value)
+  if (result.success) {
     toast.success('Colis ajouté avec succès !')
-  } catch (error) {
-    console.error("Erreur lors de l'ajout du colis :", error)
+    router.push('/parcels')
+  } else {
+    console.error("Erreur lors de l'ajout du colis :", result.error)
     toast.error(
       "Erreur lors de l'ajout du colis. Vérifiez les champs et réessayez."
     )
   }
 }
 </script>
-  
+    
   <style scoped>
 h1 {
   color: #3fb59e;

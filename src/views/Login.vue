@@ -7,6 +7,9 @@
         <h2 class="form-title">Login Form</h2>
       </div>
 
+      <!-- Message d'erreur -->
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
       <div class="form-group">
         <div class="input-container">
           <div class="icon-background">
@@ -48,31 +51,32 @@
     </div>
   </div>
 </template>
-    
-  <script setup>
+
+<script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/store/authStore.js'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import {
-  faEnvelope,
-  faLock,
-  faEye,
-  faEyeSlash,
-} from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
+// Ajouter les icônes utilisées dans le formulaire
 library.add(faEnvelope, faLock, faEye, faEyeSlash)
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
-const router = useRouter()
+const errorMessage = ref('')
+const authStore = useAuthStore()
 
-const handleLogin = () => {
+const handleLogin = async () => {
   if (email.value && password.value) {
-    router.push({ name: 'Home' })
+    try {
+      await authStore.login(email.value, password.value)
+    } catch (error) {
+      errorMessage.value = error.message
+    }
   } else {
-    alert('Veuillez remplir tous les champs')
+    errorMessage.value = 'Veuillez remplir tous les champs'
   }
 }
 
@@ -80,8 +84,8 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 </script>
-    
-  <style scoped>
+
+<style scoped>
 .login-container {
   display: flex;
   justify-content: center;
@@ -181,6 +185,12 @@ const togglePasswordVisibility = () => {
   background-color: #36a290;
 }
 
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-block-end: 15px;
+}
+
 .forgot-password,
 .signup-link {
   font-size: 0.9rem;
@@ -202,4 +212,3 @@ const togglePasswordVisibility = () => {
   text-decoration: underline;
 }
 </style>
-  
