@@ -1,11 +1,9 @@
 <template>
-  <div
-    class="container-fluid"
-  >
+  <div class="container-fluid">
     <div
       class="modal fade"
-      id="parcelModal"
-      ref="parcelModal"
+      id="shipmentModal"
+      ref="shipmentModal"
       tabindex="-1"
       data-bs-backdrop="static"
       data-bs-keyboard="false"
@@ -20,7 +18,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="text-center fw-bold" id="modalTitleId">
-              Détails du Colis
+              Détails de l'Expédition
             </h5>
             <button
               type="button"
@@ -31,7 +29,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form v-if="parcel" class="parcel-details-form">
+            <form v-if="shipment" class="shipment-details-form">
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
@@ -39,7 +37,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.nom_destinataire"
+                      :value="shipment.nom_destinataire"
                       readonly
                     />
                   </div>
@@ -48,7 +46,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.prenom_destinataire"
+                      :value="shipment.prenom_destinataire"
                       readonly
                     />
                   </div>
@@ -57,7 +55,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.telephone_destinataire"
+                      :value="shipment.telephone_destinataire"
                       readonly
                     />
                   </div>
@@ -66,7 +64,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.utilisateur ? parcel.utilisateur.nom : 'Non attribué'"
+                      :value="shipment.utilisateur ? shipment.utilisateur.nom : 'Non attribué'"
                       readonly
                     />
                   </div>
@@ -78,7 +76,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.destination"
+                      :value="shipment.destination"
                       readonly
                     />
                   </div>
@@ -87,7 +85,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.date_expedition"
+                      :value="shipment.date_expedition"
                       readonly
                     />
                   </div>
@@ -96,7 +94,7 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="parcel.code_colis ? parcel.code_colis : 'Non attribué'"
+                      :value="shipment.colis ? shipment.colis.code_colis : 'Non attribué'"
                       readonly
                     />
                   </div>
@@ -122,46 +120,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useShipmentStore } from '@/store/shipmentStore.js'
 import { useParcelStore } from '@/store/parcelStore.js'
+import { useUserStore } from '@/store/userStore.js'
 import { useRouter, useRoute } from 'vue-router'
 import { Modal } from 'bootstrap'
 
-const store = useParcelStore()
+const shipmentStore = useShipmentStore()
+const parcelStore = useParcelStore()
+const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
-const parcel = ref(null)
-const parcelModal = ref(null)
+const shipment = ref(null)
+const shipmentModal = ref(null)
 
 const closeModal = () => {
-  router.push('/parcels')
+  router.push('/shipments')
 }
 
 onMounted(async () => {
-  await store.fetchParcels()  // Assurez-vous que les données sont chargées
-  parcel.value = store.parcelById(route.params.id)
+  try {
+    await shipmentStore.fetchShipments()
+    await parcelStore.fetchParcels()
+    await userStore.fetchUsers()
 
-  // Affichez le modal si le colis a été trouvé
-  if (parcel.value) {
-    const modalElement = parcelModal.value
-    const bootstrapModal = new Modal(modalElement)
-    bootstrapModal.show()
-  } else {
-    console.error('Colis non trouvé')
-    closeModal()  // Redirection si le colis n'est pas trouvé
-  }
-})
+    shipment.value = shipmentStore.shipmentById(route.params.id)
 
-// Surveillez tout changement dans `route.params.id` pour recharger les données si nécessaire
-watch(() => route.params.id, async (newId) => {
-  parcel.value = store.parcelById(newId)
-  if (parcel.value) {
-    const modalElement = parcelModal.value
-    const bootstrapModal = new Modal(modalElement)
-    bootstrapModal.show()
-  } else {
-    closeModal()
+    if (shipment.value) {
+      shipment.value.utilisateur = userStore.users.find(
+        user => user.id === shipment.value.utilisateurId
+      ) || null
+      shipment.value.colis = parcelStore.parcels.find(
+        parcel => parcel.id === shipment.value.colisId
+      ) || null
+
+      const modalElement = shipmentModal.value
+      const bootstrapModal = new Modal(modalElement)
+      bootstrapModal.show()
+    } else {
+      console.error('Expédition non trouvée')
+      closeModal()
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des données pour l\'expédition:', error)
   }
 })
 </script>
@@ -184,16 +187,12 @@ watch(() => route.params.id, async (newId) => {
   border: none;
 }
 
-.text-center {
-  text-align: center;
-}
-
-.parcel-details-form .form-label {
+.shipment-details-form .form-label {
   color: #3fb59e;
   font-weight: bold;
 }
 
-.parcel-details-form .form-control {
+.shipment-details-form .form-control {
   background-color: #f7f9fa;
   border: 1px solid #ddd;
   border-radius: 5px;

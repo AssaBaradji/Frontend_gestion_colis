@@ -119,18 +119,13 @@
               >
                 Utilisateur:
               </label>
-              <select
+              <input
+                type="text"
                 id="utilisateurId"
-                class="form-select"
-                v-model="shipment.utilisateurId"
-              >
-                <option value="" disabled selected>
-                  Choisissez un utilisateur
-                </option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nom }}
-                </option>
-              </select>
+                class="form-control"
+                :value="connectedUser.nom"
+                readonly
+              />
             </div>
           </div>
         </div>
@@ -147,13 +142,16 @@
 import { ref, onMounted } from 'vue'
 import { useShipmentStore } from '@/store/shipmentStore.js'
 import { useParcelStore } from '@/store/parcelStore.js'
-import { useUserStore } from '@/store/userStore.js'
+import { useAuthStore } from '@/store/authStore.js'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const shipmentStore = useShipmentStore()
 const parcelStore = useParcelStore()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const router = useRouter()
+const toast = useToast()
+
 
 const shipment = ref({
   nom_destinataire: '',
@@ -161,35 +159,47 @@ const shipment = ref({
   telephone_destinataire: '',
   destination: '',
   date_expedition: '',
-  utilisateurId: '',
+  utilisateurId: authStore.currentUser?.id || null, // Utilisateur connecté
   colisId: '',
 })
 
+// Liste des colis
 const parcels = ref([])
-const users = ref([])
 
+// Chargement des colis
 onMounted(async () => {
   try {
     await parcelStore.fetchParcels()
-    await userStore.fetchUsers()
     parcels.value = parcelStore.parcels
-    users.value = userStore.users
+
+    // Assurer que l'utilisateur connecté est assigné
+    if (!shipment.value.utilisateurId && authStore.currentUser) {
+      shipment.value.utilisateurId = authStore.currentUser.id
+    }
   } catch (error) {
-    console.error(
-      'Erreur lors du chargement des colis ou des utilisateurs :',
-      error
-    )
+    console.error('Erreur lors du chargement des colis :', error)
+    toast.error('Erreur lors du chargement des colis.')
   }
 })
 
+// Fonction d'ajout d'une expédition
 const addShipment = async () => {
   try {
-    await shipmentStore.addShipment(shipment.value)
-    router.push('/shipments')
+    const result = await shipmentStore.addShipment(shipment.value)
+    if (result.success) {
+      toast.success('Expédition ajoutée avec succès !')
+      router.push('/shipments')
+    } else {
+      throw new Error(result.error)
+    }
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'expédition :", error)
+    toast.error("Erreur lors de l'ajout de l'expédition.")
   }
 }
+
+// Récupérer les informations de l'utilisateur connecté
+const connectedUser = authStore.currentUser
 </script>
   
   <style scoped>

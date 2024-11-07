@@ -59,37 +59,9 @@
                 >{{ t('parcels.editForm.date') }}
               </label>
             </div>
-            <div class="form-floating mb-4">
-              <input
-                type="text"
-                id="utilisateur"
-                class="form-control"
-                :value="loadedUser.nom"
-                placeholder="Utilisateur"
-                readonly
-              />
-              <label for="utilisateur">
-                <i class="fas fa-user me-2"></i>{{ t('parcels.editForm.user') }}
-              </label>
-            </div>
           </div>
 
           <div class="col-md-6">
-            <div class="form-floating mb-4">
-              <textarea
-                id="description"
-                class="form-control"
-                v-model="parcel.description"
-                placeholder="Description"
-                style="block-size: 100px"
-                required
-              ></textarea>
-              <label for="description">
-                <i class="fas fa-align-left me-2"></i
-                >{{ t('parcels.editForm.description') }}
-              </label>
-            </div>
-
             <div class="form-floating mb-4">
               <input
                 type="text"
@@ -123,16 +95,55 @@
                 <i class="fas fa-tags me-2"></i>{{ t('parcels.editForm.type') }}
               </label>
             </div>
+
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="utilisateur"
+                class="form-control text-end readonly-input"
+                :value="loadedUser.nom"
+                placeholder="Utilisateur"
+                readonly
+              />
+              <label for="utilisateur">
+                <i class="fas fa-user me-2"></i>{{ t('parcels.editForm.user') }}
+              </label>
+            </div>
           </div>
         </div>
 
-        <button
-          class="btn w-100 py-2 fw-bold mt-4 shadow-sm"
-          type="submit"
-          :style="{ backgroundColor: primaryColor, color: textColor }"
-        >
-          <i class="fas fa-save me-2"></i>{{ t('parcels.editForm.save') }}
-        </button>
+        <div class="form-floating mb-4">
+          <textarea
+            id="description"
+            class="form-control"
+            v-model="parcel.description"
+            placeholder="Description"
+            style="block-size: 100px"
+            required
+          ></textarea>
+          <label for="description">
+            <i class="fas fa-align-left me-2"></i
+            >{{ t('parcels.editForm.description') }}
+          </label>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button
+            type="button"
+            class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
+            @click="cancelEdit"
+          >
+            Annuler
+          </button>
+
+          <button
+            class="btn w-45 py-2 fw-bold shadow-sm"
+            type="submit"
+            :style="{ backgroundColor: primaryColor, color: textColor }"
+          >
+            <i class="fas fa-save me-2"></i>{{ t('parcels.editForm.save') }}
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -196,6 +207,11 @@ const updateParcel = async () => {
     toast.error('Erreur lors de la mise à jour du colis.')
   }
 }
+
+const cancelEdit = () => {
+  toast.info('Modification annulée.')
+  router.push('/parcels')
+}
 </script>
   
   <style scoped>
@@ -233,6 +249,21 @@ const updateParcel = async () => {
 .form-select:focus {
   border-color: #3fb59e !important;
   box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.form-floating .readonly-input:focus {
+  border-color: #ddd !important;
+  box-shadow: none;
+}
+
+.w-45 {
+  inline-size: 45%;
 }
 </style>
   

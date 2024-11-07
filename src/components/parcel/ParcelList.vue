@@ -1,10 +1,22 @@
 <template>
   <div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold title-margin" style="color: #3fb59e">
+    <h1 class="mb-4 text-center fw-bold title-margin" style="color: #4a4a4a">
       Liste des Colis
     </h1>
 
-    <div class="text-end mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="input-group" style="max-inline-size: 300px">
+        <span class="input-group-text search-icon">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          v-model="searchQuery"
+          placeholder="Rechercher un colis..."
+        />
+      </div>
+
       <router-link
         to="/parcels/add"
         class="btn btn- fw-bold"
@@ -68,8 +80,9 @@
       </tbody>
     </table>
   </div>
-</template> 
-<script setup>
+</template>
+  
+  <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useParcelStore } from '@/store/parcelStore.js'
 import { useTypeColisStore } from '@/store/parcelTypeStore.js'
@@ -84,6 +97,7 @@ const userStore = useUserStore()
 const parcels = ref([])
 const types = ref([])
 const users = ref([])
+const searchQuery = ref('')
 
 const fetchAndMapParcels = async () => {
   try {
@@ -108,45 +122,73 @@ onMounted(fetchAndMapParcels)
 
 const selectedType = ref('')
 const filteredParcels = computed(() =>
-  selectedType.value
-    ? parcels.value.filter(
-        parcel => parcel.type && parcel.type.id === selectedType.value
-      )
-    : parcels.value
+  parcels.value.filter(parcel => {
+    const matchesType = selectedType.value
+      ? parcel.type && parcel.type.id === selectedType.value
+      : true
+    const matchesSearch = searchQuery.value
+      ? parcel.code_colis
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        parcel.description
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase())
+      : true
+    return matchesType && matchesSearch
+  })
 )
-
 const deleteParcel = async id => {
-  try {
-    await store.deleteParcel(id)
-    await fetchAndMapParcels()
+  const result = await store.deleteParcel(id)
+  if (result.success) {
     toast.success('Colis supprimé avec succès.')
-  } catch (error) {
-    console.error('Erreur lors de la suppression du colis :', error)
-    toast.error('Erreur lors de la suppression du colis.')
+    await fetchAndMapParcels()
+  } else {
+    console.error('Erreur lors de la suppression du colis')
+    toast.error(`Erreur lors de la suppression du colis`)
   }
 }
 </script>
   
   <style scoped>
 .text-primary {
-  color: #0d6efd;
+  color: #4a4a4a;
 }
-.btn- {
-  background-color: #3fb59e;
-  border-color: #3fb59e;
+
+.add-button:hover {
+  background-color: #0056b3;
 }
+
+.search-icon {
+  background-color: #e0e0e0;
+  color: #4a4a4a;
+}
+
+.input-group-text {
+  background-color: #f0f0f0;
+  color: #4a4a4a;
+  font-weight: bold;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  color: #4a4a4a;
+}
+
 .btn-outline-info {
   border-color: #17a2b8;
   color: #17a2b8;
 }
+
 .btn-outline-secondary {
   border-color: #6c757d;
   color: #6c757d;
 }
+
 .btn-outline-danger {
   border-color: #dc3545;
   color: #dc3545;
 }
+
 .title-margin {
   margin-block-start: 80px;
 }

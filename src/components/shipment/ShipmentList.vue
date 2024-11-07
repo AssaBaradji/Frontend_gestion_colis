@@ -4,10 +4,22 @@
       Liste des Expéditions
     </h1>
 
-    <div class="text-end mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="input-group" style="max-inline-size: 300px">
+        <span class="input-group-text search-icon">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          v-model="searchQuery"
+          placeholder="Rechercher une expédition..."
+        />
+      </div>
+
       <router-link
         to="/shipments/add"
-        class="btn btn- fw-bold"
+        class="btn btn-primary fw-bold add-button"
         style="background-color: #3fb59e; color: white"
       >
         <i class="fas fa-plus"></i> Ajouter Expédition
@@ -73,8 +85,8 @@
     </table>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useShipmentStore } from '@/store/shipmentStore.js'
 import { useParcelStore } from '@/store/parcelStore.js'
@@ -89,8 +101,9 @@ const userStore = useUserStore()
 const shipments = ref([])
 const parcels = ref([])
 const users = ref([])
+const searchQuery = ref('')
 
-onMounted(async () => {
+const fetchAndMapShipments = async () => {
   try {
     await shipmentStore.fetchShipments()
     await parcelStore.fetchParcels()
@@ -110,52 +123,90 @@ onMounted(async () => {
     console.error('Erreur lors du chargement des données :', error)
     toast.error('Erreur lors du chargement des données.')
   }
-})
+}
+
+onMounted(fetchAndMapShipments)
 
 const selectedDestination = ref('')
 const filteredShipments = computed(() =>
-  selectedDestination.value
-    ? shipments.value.filter(
-        shipment => shipment.destination === selectedDestination.value
-      )
-    : shipments.value
+  shipments.value.filter(shipment => {
+    const matchesDestination = selectedDestination.value
+      ? shipment.destination === selectedDestination.value
+      : true
+    const matchesSearch = searchQuery.value
+      ? shipment.nom_destinataire
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        shipment.prenom_destinataire
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        shipment.destination
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase())
+      : true
+    return matchesDestination && matchesSearch
+  })
 )
 
 const deleteShipment = async id => {
-  try {
-    await shipmentStore.deleteShipment(id)
-    await shipmentStore.fetchShipments()
+  const result = await shipmentStore.deleteShipment(id)
+  if (result.success) {
     toast.success('Expédition supprimée avec succès.')
-  } catch (error) {
-    console.error("Erreur lors de la suppression de l'expédition :", error)
-    toast.error("Erreur lors de la suppression de l'expédition.")
+    await fetchAndMapShipments()
+  } else {
+    console.error(
+      "Erreur lors de la suppression de l'expédition :",
+      result.error
+    )
+    toast.error(
+      `Erreur lors de la suppression de l'expédition : ${result.error}`
+    )
   }
 }
 </script>
 
 <style scoped>
 .text-primary {
-  color: #0d6efd;
+  color: #4a4a4a;
 }
-.btn- {
-  background-color: #3fb59e;
-  border-color: #3fb59e;
+
+.add-button:hover {
+  background-color: #0056b3;
 }
+
+.search-icon {
+  background-color: #e0e0e0;
+  color: #4a4a4a;
+}
+
+.input-group-text {
+  background-color: #f0f0f0;
+  color: #4a4a4a;
+  font-weight: bold;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  color: #4a4a4a;
+}
+
 .btn-outline-info {
   border-color: #17a2b8;
   color: #17a2b8;
 }
+
 .btn-outline-secondary {
   border-color: #6c757d;
   color: #6c757d;
 }
+
 .btn-outline-danger {
   border-color: #dc3545;
   color: #dc3545;
 }
+
 .title-margin {
   margin-block-start: 80px;
 }
 </style>
 
-  

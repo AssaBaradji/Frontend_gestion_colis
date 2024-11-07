@@ -32,8 +32,13 @@
             id="mot_de_passe"
             v-model="user.mot_de_passe"
             placeholder="Mot de passe"
+            :class="{ 'is-invalid': passwordError }"
+            @blur="validatePassword"
             required
           />
+          <span v-if="passwordError" class="error-text">{{
+            passwordError
+          }}</span>
         </div>
 
         <div class="form-group">
@@ -74,7 +79,20 @@ const user = ref({
   statut: true,
 })
 
+const passwordError = ref('')
+
+const validatePassword = () => {
+  if (user.value.mot_de_passe.length < 6) {
+    passwordError.value = 'Le mot de passe doit contenir au moins 6 caractères.'
+  } else {
+    passwordError.value = ''
+  }
+}
+
 const addUser = async () => {
+  validatePassword()
+  if (passwordError.value) return
+
   try {
     await store.addUser(user.value)
     await store.fetchUsers()
@@ -136,6 +154,16 @@ h1 {
   border-color: #3fb59e;
   outline: none;
   box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.error-text {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-block-start: 4px;
 }
 
 .form-check {
