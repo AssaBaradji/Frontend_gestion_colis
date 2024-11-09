@@ -10,7 +10,8 @@
         @click="setActiveRoute('/')"
         to="/"
       >
-         {{ $t('app.title') }}
+        <font-awesome-icon icon="home" class="me-2" />
+        {{ $t('app.title') }}
       </router-link>
 
       <button
@@ -34,6 +35,7 @@
               :class="{ active: activeRoute.value === '/users' }"
               @click="setActiveRoute('/users')"
             >
+              <font-awesome-icon icon="user" class="me-2" />
               {{ $t('app.nav.users') }}
             </router-link>
           </li>
@@ -49,6 +51,7 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
+              <font-awesome-icon icon="box" class="me-2" />
               {{ $t('app.nav.packages') }}
             </button>
             <ul class="dropdown-menu">
@@ -58,6 +61,7 @@
                   :class="{ active: activeRoute.value === '/parcels' }"
                   @click="setActiveRoute('/parcels')"
                 >
+                  <font-awesome-icon icon="box" class="me-2" />
                   {{ $t('app.nav.packages') }}
                 </button>
               </li>
@@ -67,6 +71,7 @@
                   :class="{ active: activeRoute.value === '/parcel-types' }"
                   @click="setActiveRoute('/parcel-types')"
                 >
+                  <font-awesome-icon icon="tags" class="me-2" />
                   {{ $t('app.nav.packageTypes') }}
                 </button>
               </li>
@@ -79,6 +84,7 @@
               :class="{ active: activeRoute.value === '/shipments' }"
               @click="setActiveRoute('/shipments')"
             >
+              <font-awesome-icon icon="truck" class="me-2" />
               {{ $t('app.nav.shipments') }}
             </button>
           </li>
@@ -94,6 +100,7 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
+              <font-awesome-icon icon="credit-card" class="me-2" />
               {{ $t('app.nav.payments') }}
             </button>
             <ul class="dropdown-menu">
@@ -103,6 +110,7 @@
                   :class="{ active: activeRoute.value === '/payments' }"
                   @click="setActiveRoute('/payments')"
                 >
+                  <font-awesome-icon icon="money-bill-wave" class="me-2" />
                   {{ $t('app.nav.payments') }}
                 </button>
               </li>
@@ -112,6 +120,7 @@
                   :class="{ active: activeRoute.value === '/payment-methods' }"
                   @click="setActiveRoute('/payment-methods')"
                 >
+                  <font-awesome-icon icon="wallet" class="me-2" />
                   {{ $t('app.nav.paymentMethods') }}
                 </button>
               </li>
@@ -124,6 +133,7 @@
               :class="{ active: activeRoute.value === '/delivery' }"
               @click="setActiveRoute('/delivery')"
             >
+              <font-awesome-icon icon="envelope" class="me-2" />
               {{ $t('app.nav.deliveries') }}
             </button>
           </li>
@@ -144,6 +154,7 @@
               :class="{ active: activeRoute.value === '/login' }"
               @click="setActiveRoute('/login')"
             >
+              <font-awesome-icon icon="sign-in-alt" class="me-2" />
               Connexion
             </router-link>
           </li>
@@ -164,9 +175,34 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/authStore.js' 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
+import {
+  faSignOutAlt,
+  faSignInAlt,
+  faUser,
+  faBox,
+  faTags,
+  faTruck,
+  faCreditCard,
+  faMoneyBillWave,
+  faWallet,
+  faEnvelope,
+  faHome
+} from '@fortawesome/free-solid-svg-icons'
 
-library.add(faSignOutAlt)
+library.add(
+  faSignOutAlt,
+  faSignInAlt,
+  faUser,
+  faBox,
+  faTags,
+  faTruck,
+  faCreditCard,
+  faMoneyBillWave,
+  faWallet,
+  faEnvelope,
+  faHome
+)
+
 const router = useRouter()
 const route = useRoute()
 const activeRoute = ref(route.path)

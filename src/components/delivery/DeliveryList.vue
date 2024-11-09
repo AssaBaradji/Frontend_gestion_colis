@@ -3,7 +3,20 @@
     <h1 class="mb-4 text-center fw-bold" style="color: #3fb59e">
       Liste des Livraisons
     </h1>
-    <div class="text-end mb-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="input-group" style="max-inline-size: 300px">
+        <span class="input-group-text search-icon">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          v-model="searchQuery"
+          placeholder="Rechercher une livraison..."
+        />
+      </div>
+
       <router-link
         to="/delivery/add"
         class="btn btn-primary fw-bold"
@@ -13,7 +26,7 @@
       </router-link>
     </div>
 
-    <div v-if="deliveries.length === 0 && !loading" class="text-center">
+    <div v-if="filteredDeliveries.length === 0 && !loading" class="text-center">
       <p>Aucune livraison trouvée.</p>
     </div>
 
@@ -35,18 +48,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="delivery in deliveries" :key="delivery.id">
+        <tr v-for="delivery in filteredDeliveries" :key="delivery.id">
           <td>{{ delivery.id }}</td>
           <td>{{ delivery.nom }}</td>
           <td>{{ delivery.prenom }}</td>
           <td>{{ delivery.date_livraison }}</td>
           <td>{{ delivery.telephone }}</td>
           <td>{{ delivery.utilisateur ? delivery.utilisateur.nom : 'N/A' }}</td>
-          <td>
-            {{
-              delivery.expedition ? delivery.expedition.nom_destinataire : 'N/A'
-            }}
-          </td>
+          <td>{{ delivery.expedition ? delivery.expedition.nom_destinataire : 'N/A' }}</td>
           <td class="text-center">
             <router-link
               :to="'/delivery/show/' + delivery.id"
@@ -62,7 +71,7 @@
             </router-link>
             <button
               class="btn btn-sm btn-outline-danger"
-              @click="deleteDelivery(delivery.id)"
+              @click="confirmDelete(delivery.id)"
             >
               <i class="fas fa-trash"></i>
             </button>
@@ -72,9 +81,9 @@
     </table>
   </div>
 </template>
-    
-  <script setup>
-import { ref, onMounted } from 'vue'
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { useDeliveryStore } from '@/store/deliveryStore.js'
 import { useShipmentStore } from '@/store/shipmentStore.js'
 import { useUserStore } from '@/store/userStore.js'
@@ -87,6 +96,7 @@ const toast = useToast()
 
 const deliveries = ref([])
 const loading = ref(false)
+const searchQuery = ref('')
 
 onMounted(async () => {
   loading.value = true
@@ -97,12 +107,8 @@ onMounted(async () => {
 
     deliveries.value = deliveryStore.deliveries.map(delivery => ({
       ...delivery,
-      utilisateur: userStore.users.find(
-        user => user.id === delivery.utilisateurId
-      ),
-      expedition: shipmentStore.shipments.find(
-        shipment => shipment.id === delivery.expeditionId
-      ),
+      utilisateur: userStore.users.find(user => user.id === delivery.utilisateurId),
+      expedition: shipmentStore.shipments.find(shipment => shipment.id === delivery.expeditionId),
     }))
   } catch (error) {
     console.error('Erreur lors du chargement des données :', error)
@@ -112,26 +118,36 @@ onMounted(async () => {
   }
 })
 
-const deleteDelivery = async id => {
-  const confirmation = confirm(
-    'Voulez-vous vraiment supprimer cette livraison ?'
+const filteredDeliveries = computed(() =>
+  deliveries.value.filter(
+    delivery =>
+      (delivery.nom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (delivery.prenom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (delivery.utilisateur?.nom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (delivery.expedition?.nom_destinataire || '').toLowerCase().includes(searchQuery.value.toLowerCase())
   )
+)
 
-  if (!confirmation) {
-    return // Arrête l'exécution si l'utilisateur annule
+const confirmDelete = async id => {
+  const confirmation = confirm("Voulez-vous vraiment supprimer cette livraison ?")
+  if (confirmation) {
+    await deleteDelivery(id)
   }
+}
+
+const deleteDelivery = async id => {
   try {
     await deliveryStore.deleteDelivery(id)
+    toast.success('Livraison supprimée avec succès.')
     await deliveryStore.fetchDeliveries()
-    // toast.success('Livraison supprimée avec succès.')
   } catch (error) {
     console.error('Erreur lors de la suppression de la livraison :', error)
-    // toast.error('Erreur lors de la suppression de la livraison.')
+    toast.error('Erreur lors de la suppression de la livraison.')
   }
 }
 </script>
-    
-  <style scoped>
+
+<style scoped>
 h1 {
   color: #3fb59e;
   margin-block-start: 80px;
@@ -140,6 +156,24 @@ h1 {
   background-color: #3fb59e;
   border-color: #3fb59e;
 }
+.search-icon {
+  background-color: #e0e0e0;
+}
+
+.table-bordered thead {
+  background-color: #3fb59e;
+  color: white;
+}
+
+.table-bordered th {
+  font-weight: bold;
+  padding: 12px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
 .btn-outline-info {
   border-color: #17a2b8;
   color: #17a2b8;
@@ -153,4 +187,3 @@ h1 {
   color: #dc3545;
 }
 </style>
-  

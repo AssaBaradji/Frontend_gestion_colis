@@ -4,59 +4,66 @@
       Liste des Types de Colis
     </h1>
 
-    <div class="text-end mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="input-group" style="max-inline-size: 300px">
+        <span class="input-group-text" id="search-addon">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          v-model="searchQuery"
+          placeholder="Rechercher un type de colis..."
+          aria-label="Search"
+          aria-describedby="search-addon"
+        />
+      </div>
+
       <router-link
         to="/parcel-types/add"
-        class="btn btn- fw-bold"
+        class="btn btn-add fw-bold"
         style="color: white"
       >
         <i class="fas fa-plus"></i> Ajouter Type de Colis
       </router-link>
     </div>
 
-    <div v-if="mappedTypes.length === 0" class="text-center">
+    <div v-if="filteredTypes.length === 0" class="text-center">
       <p>Aucun type de colis trouvé.</p>
     </div>
 
-    <table v-else class="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nom</th>
-          <th scope="col">Utilisateur</th>
-          <th scope="col" class="text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="type in mappedTypes" :key="type.id">
-          <td>{{ type.id }}</td>
-          <td>{{ type.nom }}</td>
-          <td>
-            {{ type.utilisateur ? type.utilisateur.nom : 'Non attribué' }}
-          </td>
-          <td class="text-center">
-            <button
-              class="btn btn-sm btn-outline-info me-2"
-              @click="showTypeDetails(type)"
-            >
-              <i class="fas fa-eye"></i>
-            </button>
-            <router-link
-              :to="'/parcel-types/edit/' + type.id"
-              class="btn btn-sm btn-outline-secondary me-2"
-            >
-              <i class="fas fa-edit"></i>
-            </router-link>
-            <button
-              class="btn btn-sm btn-outline-danger"
-              @click="confirmDeleteType(type.id)"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="row">
+      <div class="col-md-4 mb-4" v-for="type in filteredTypes" :key="type.id">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column align-items-center">
+            <div class="icon-container mb-3">
+              <i :class="getIconClass(type.nom)"></i>
+            </div>
+            <h5 class="card-title">{{ type.nom }}</h5>
+            <div class="d-flex justify-content-between mt-3 w-100">
+              <button
+                class="btn btn-sm btn-outline-info me-2"
+                @click="showTypeDetails(type)"
+              >
+                <i class="fas fa-eye"></i> Détails
+              </button>
+              <router-link
+                :to="'/parcel-types/edit/' + type.id"
+                class="btn btn-sm btn-outline-secondary me-2"
+              >
+                <i class="fas fa-edit"></i> Modifier
+              </router-link>
+              <button
+                class="btn btn-sm btn-outline-danger"
+                @click="confirmDeleteType(type.id)"
+              >
+                <i class="fas fa-trash"></i> Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div
       class="modal fade"
@@ -89,20 +96,20 @@
           <div class="modal-body">
             <form v-if="selectedType" class="parcel-type-details-form">
               <div class="mb-3">
-                <label class="form-label">ID:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="selectedType.id"
-                  readonly
-                />
-              </div>
-              <div class="mb-3">
                 <label class="form-label">Nom:</label>
                 <input
                   type="text"
                   class="form-control"
                   :value="selectedType.nom"
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">ID:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  :value="selectedType.id"
                   readonly
                 />
               </div>
@@ -151,6 +158,7 @@ const userStore = useUserStore()
 
 const parcelTypeModal = ref(null)
 const selectedType = ref(null)
+const searchQuery = ref('')
 
 onMounted(async () => {
   try {
@@ -177,12 +185,16 @@ const closeModal = () => {
 }
 
 const mappedTypes = computed(() => {
-  return typeStore.types.map(type => {
-    const utilisateur = userStore.users.find(
-      user => user.id === type.utilisateurId
-    )
-    return { ...type, utilisateur }
-  })
+  return typeStore.types.map(type => ({
+    ...type,
+    utilisateur: userStore.users.find(user => user.id === type.utilisateurId),
+  }))
+})
+
+const filteredTypes = computed(() => {
+  return mappedTypes.value.filter(type =>
+    type.nom.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
 })
 
 const confirmDeleteType = async id => {
@@ -207,11 +219,24 @@ const deleteType = async id => {
     toast.error(result.message)
   }
 }
+
+const getIconClass = typeName => {
+  switch (typeName.toLowerCase()) {
+    case 'fragile':
+      return 'fas fa-glass-martini-alt fa-2x text-danger'
+    case 'documents':
+      return 'fas fa-folder-open fa-2x text-primary'
+    case 'électronique':
+      return 'fas fa-mobile-alt fa-2x text-warning'
+    case 'alimentaire':
+      return 'fas fa-apple-alt fa-2x text-success'
+    case 'vêtements':
+      return 'fas fa-tshirt fa-2x text-info'
+    default:
+      return 'fas fa-cube fa-2x text-secondary'
+  }
+}
 </script>
-
-<style scoped>
-</style>
-
 
 <style scoped>
 h1 {
@@ -219,24 +244,32 @@ h1 {
   margin-block-start: 80px;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) {
-  background-color: #f9f9f9;
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+  text-align: center;
 }
 
-.btn- {
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container {
+  font-size: 1.8rem;
+  color: #3fb59e;
+}
+
+.btn-add {
   background-color: #3fb59e;
   border-color: #3fb59e;
   color: white;
 }
 
-.btn-outline-secondary {
-  border-color: #6c757d;
-  color: #6c757d;
-}
-
+.btn-outline-info,
+.btn-outline-secondary,
 .btn-outline-danger {
-  border-color: #dc3545;
-  color: #dc3545;
+  inline-size: 100%;
 }
 
 .modal-content {
@@ -254,19 +287,6 @@ h1 {
 
 .modal-footer {
   border: none;
-}
-
-.parcel-type-details-form .form-label {
-  color: #3fb59e;
-  font-weight: bold;
-}
-
-.parcel-type-details-form .form-control {
-  background-color: #f7f9fa;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: #333;
-  padding: 10px;
 }
 
 .btn-secondary {

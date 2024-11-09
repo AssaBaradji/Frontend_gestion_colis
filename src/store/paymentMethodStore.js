@@ -1,125 +1,143 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
-import { useToast } from 'vue-toastification'
 import { useAuthStore } from './authStore'
-
-const toast = useToast()
-
-const showToast = (type, message) => {
-  if (type === 'success') {
-    toast.success(message)
-  } else if (type === 'error') {
-    toast.error(message)
-  }
-}
+import { useUserStore } from './userStore'
 
 export const usePaymentMethodStore = defineStore('paymentMethodStore', () => {
   const paymentMethods = ref([])
   const loading = ref(false)
-  const auth = useAuthStore();
+  const auth = useAuthStore()
+  const userStore = useUserStore()
+  const authToken = `Bearer ${auth.token}`
 
   const fetchPaymentMethods = async () => {
-    const auth = useAuthStore();
     loading.value = true
     try {
+      await userStore.fetchUsers()
       const response = await axios.get(
-        'http://localhost:3000/methodes-paiement',{
+        'http://localhost:3000/methodes-paiement',
+        {
           headers: {
-            Authorization: `Bearer ${auth.token}`
-          }
-        }
+            Authorization: authToken,
+          },
+        },
       )
-      paymentMethods.value = response.data
-      console.log('Méthodes de paiement chargées :', paymentMethods.value)
+
+      paymentMethods.value = response.data.map(method => ({
+        ...method,
+        utilisateur: userStore.users.find(
+          user => user.id === method.utilisateurId,
+        ) || { nom: 'Non attribué' },
+      }))
+      return { success: true }
     } catch (error) {
       console.error(
         'Erreur lors du chargement des méthodes de paiement :',
         error,
       )
-      showToast('error', 'Erreur lors du chargement des méthodes de paiement.')
+      return { success: false, error }
     } finally {
       loading.value = false
     }
   }
 
   const addPaymentMethod = async method => {
-    const auth = useAuthStore();
     try {
       const response = await axios.post(
         'http://localhost:3000/methodes-paiement',
-        method,{
+        method,
+        {
           headers: {
-            Authorization: `Bearer ${auth.token}`
-          }
-        }
+            Authorization: authToken,
+          },
+        },
       )
-      paymentMethods.value.push(response.data)
-      showToast('success', 'Méthode de paiement ajoutée avec succès !')
+
+      paymentMethods.value.push({
+        ...response.data,
+        utilisateur: userStore.users.find(
+          user => user.id === response.data.utilisateurId,
+        ) || { nom: 'Non attribué' },
+      })
+      await fetchPaymentMethods()
+      return { success: true }
     } catch (error) {
       console.error("Erreur lors de l'ajout de la méthode de paiement :", error)
-      showToast('error', "Erreur lors de l'ajout de la méthode de paiement.")
+      return { success: false, error: error.response?.data || error.message }
     }
   }
 
   const updatePaymentMethod = async updatedMethod => {
-    const auth = useAuthStore();
     try {
       const response = await axios.put(
         `http://localhost:3000/methodes-paiement/${updatedMethod.id}`,
-        updatedMethod,{
+        updatedMethod,
+        {
           headers: {
-            Authorization: `Bearer ${auth.token}`
-          }
-        }
+            Authorization: authToken,
+          },
+        },
       )
       const index = paymentMethods.value.findIndex(
         method => method.id === updatedMethod.id,
       )
       if (index !== -1) {
-        paymentMethods.value[index] = response.data
-        console.log('Méthode de paiement modifiée :', response.data)
-        showToast('success', 'Méthode de paiement modifiée avec succès !')
+        paymentMethods.value[index] = {
+          ...response.data,
+          utilisateur: userStore.users.find(
+            user => user.id === response.data.utilisateurId,
+          ) || { nom: 'Non attribué' },
+        }
+        return { success: true }
       }
+      return { success: false, error: 'Méthode de paiement non trouvée' }
     } catch (error) {
       console.error(
         'Erreur lors de la mise à jour de la méthode de paiement :',
         error,
       )
-      showToast(
-        'error',
-        'Erreur lors de la mise à jour de la méthode de paiement.',
-      )
+      return { success: false, error: error.response?.data || error.message }
     }
   }
 
   const deletePaymentMethod = async id => {
-    const auth = useAuthStore();
     try {
-      await axios.delete(`http://localhost:3000/methodes-paiement/${id}`,{
-        headers:{
-          Authorization:`Barear ${auth.token}`
-        }
+      await axios.delete(`http://localhost:3000/methodes-paiement/${id}`, {
+        headers: {
+          Authorization: authToken,
+        },
       })
       paymentMethods.value = paymentMethods.value.filter(
         method => method.id !== id,
       )
-      console.log('Méthode de paiement supprimée :', id)
-      showToast('success', 'Méthode de paiement supprimée avec succès !')
+      return { success: true }
     } catch (error) {
       console.error(
         'Erreur lors de la suppression de la méthode de paiement :',
         error,
       )
-      showToast(
-        'error',
-        'Erreur lors de la suppression de la méthode de paiement.',
-      )
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || 'Erreur lors de la suppression.',
+      }
     }
   }
 
   const getPaymentMethodById = id => {
-    return paymentMethods.value.find(method => method.id === parseInt(id))
+    const method = paymentMethods.value.find(
+      method => method.id === parseInt(id),
+    )
+    if (method) {
+      return {
+        ...method,
+        utilisateur: userStore.users.find(
+          user => user.id === method.utilisateurId,
+        ) || { nom: 'Non attribué' },
+      }
+    }
+    return null
   }
 
   return {

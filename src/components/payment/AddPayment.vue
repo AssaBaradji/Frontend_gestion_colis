@@ -127,7 +127,7 @@
     </div>
   </div>
 </template>
-  
+    
   <script setup>
 import { ref, onMounted } from 'vue'
 import { usePaymentStore } from '@/store/paymentStore.js'
@@ -176,7 +176,7 @@ const addPayment = async () => {
   }
 }
 </script>
-  
+    
   <style scoped>
 h1 {
   color: #3fb59e;

@@ -86,24 +86,13 @@
               </select>
             </div>
             <div class="mb-3">
-              <label
-                for="utilisateurId"
-                class="form-label fw-bold text-primary"
-              >
-                Utilisateur :
-              </label>
-              <select
-                id="utilisateurId"
-                class="form-select"
-                v-model="delivery.utilisateurId"
-              >
-                <option value="" disabled selected>
-                  Choisissez un utilisateur
-                </option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nom }}
-                </option>
-              </select>
+              <label class="form-label fw-bold text-primary">Utilisateur :</label>
+              <input
+                type="text"
+                class="form-control"
+                :value="authStore.utilisateurNom"
+                readonly
+              />
             </div>
           </div>
         </div>
@@ -114,18 +103,18 @@
     </div>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useDeliveryStore } from '@/store/deliveryStore.js'
 import { useShipmentStore } from '@/store/shipmentStore.js'
-import { useUserStore } from '@/store/userStore.js'
+import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 const deliveryStore = useDeliveryStore()
 const shipmentStore = useShipmentStore()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 
@@ -135,46 +124,38 @@ const delivery = ref({
   date_livraison: '',
   telephone: '',
   expeditionId: '',
-  utilisateurId: '',
+  utilisateurId: authStore.utilisateurId, // Utilisateur connecté
 })
 
 const expeditions = ref([])
-const users = ref([])
 
 onMounted(async () => {
   try {
     await shipmentStore.fetchShipments()
-    await userStore.fetchUsers()
     expeditions.value = shipmentStore.shipments
-    users.value = userStore.users
   } catch (error) {
-    console.error(
-      'Erreur lors du chargement des expéditions ou des utilisateurs.',
-      error
-    )
-    toast.error(
-      'Erreur lors du chargement des expéditions ou des utilisateurs.'
-    )
+    console.error('Erreur lors du chargement des expéditions.', error)
+    toast.error('Erreur lors du chargement des expéditions.')
   }
 })
 
-// Nouvelle méthode pour ajouter la livraison et inclure des logs pour déboguer
 const handleAddDelivery = async () => {
-  console.log('handleAddDelivery called')
-  console.log('Delivery data:', delivery.value)
-
   try {
-    await deliveryStore.addDelivery(delivery.value)
-    // toast.success('Livraison ajoutée avec succès !')
-    router.push('/delivery')
+    const { success } = await deliveryStore.addDelivery(delivery.value)
+    if (success) {
+      toast.success('Livraison ajoutée avec succès !')
+      router.push('/delivery')
+    } else {
+      toast.error("Erreur lors de l'ajout de la livraison.")
+    }
   } catch (error) {
     console.error("Erreur lors de l'ajout de la livraison :", error)
-    // toast.error("Erreur lors de l'ajout de la livraison.")
+    toast.error("Erreur lors de l'ajout de la livraison.")
   }
 }
 </script>
-  
-  <style scoped>
+
+<style scoped>
 h1 {
   color: #3fb59e;
   margin-block-start: 80px;
@@ -198,4 +179,3 @@ h1 {
   color: #3fb59e !important;
 }
 </style>
-  

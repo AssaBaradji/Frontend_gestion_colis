@@ -1,10 +1,22 @@
 <template>
   <div class="container mt-5">
-    <h1 class="mb-4 text-center display-4 fw-bold" style="color: #3fb59e">
+    <h1 class="mb-4 text-center fw-bold title-margin" style="color: #3fb59e">
       Liste des Paiements
     </h1>
 
-    <div class="text-end mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="input-group" style="max-inline-size: 300px">
+        <span class="input-group-text search-icon">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          v-model="searchQuery"
+          placeholder="Rechercher un paiement..."
+        />
+      </div>
+
       <router-link
         to="/payments/add"
         class="btn btn- fw-bold"
@@ -14,34 +26,32 @@
       </router-link>
     </div>
 
-    <div v-if="loading" class="text-center">
-      <i class="fas fa-spinner fa-spin fa-2x" style="color: #3fb59e"></i>
+    <div v-if="filteredPayments.length === 0" class="text-center">
+      <p>Aucun paiement trouvé.</p>
     </div>
 
     <table v-else class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Montant</th>
-          <th>Date Paiement</th>
-          <th>Moment Paiement</th>
-          <th>Utilisateur</th>
-          <th>Colis</th>
-          <th>Méthode de Paiement</th>
-          <th class="text-center">Actions</th>
+          <th scope="col">ID</th>
+          <th scope="col">Montant</th>
+          <th scope="col">Date Paiement</th>
+          <th scope="col">Moment Paiement</th>
+          <th scope="col">Utilisateur</th>
+          <th scope="col">Colis</th>
+          <th scope="col">Méthode de Paiement</th>
+          <th scope="col" class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="payment in payments" :key="payment.id">
+        <tr v-for="payment in filteredPayments" :key="payment.id">
           <td>{{ payment.id }}</td>
           <td>{{ payment.montant }}</td>
           <td>{{ payment.date_paiement }}</td>
           <td>{{ payment.moment_paiement }}</td>
           <td>{{ payment.utilisateur ? payment.utilisateur.nom : 'N/A' }}</td>
           <td>{{ payment.colis ? payment.colis.code_colis : 'N/A' }}</td>
-          <td>
-            {{ payment.methodePaiement ? payment.methodePaiement.nom : 'N/A' }}
-          </td>
+          <td>{{ payment.methodePaiement ? payment.methodePaiement.nom : 'N/A' }}</td>
           <td class="text-center">
             <router-link
               :to="'/payments/show/' + payment.id"
@@ -57,7 +67,7 @@
             </router-link>
             <button
               class="btn btn-sm btn-outline-danger"
-              @click="deletePayment(payment.id)"
+              @click="confirmDelete(payment.id)"
             >
               <i class="fas fa-trash"></i>
             </button>
@@ -67,42 +77,78 @@
     </table>
   </div>
 </template>
-  
-  <script setup>
-import { onMounted, ref } from 'vue'
+
+<script setup>
+import { computed, onMounted, ref } from 'vue'
 import { usePaymentStore } from '@/store/paymentStore.js'
-import { usePaymentMethodStore } from '@/store/paymentMethodStore.js'
 import { useToast } from 'vue-toastification'
 
-const paymentStore = usePaymentStore()
-const paymentMethodStore = usePaymentMethodStore()
-const { payments, loading, fetchPayments, deletePayment } = paymentStore
 const toast = useToast()
-
-const methods = ref([])
+const store = usePaymentStore()
+const payments = computed(() => store.payments)
+const searchQuery = ref('')
 
 onMounted(async () => {
-  try {
-    await fetchPayments()
-    await paymentMethodStore.fetchPaymentMethods()
-    methods.value = paymentMethodStore.methods
-  } catch (error) {
-    toast.error(
-      'Erreur lors du chargement des paiements ou des méthodes de paiement.'
-    )
+  const { success } = await store.fetchPayments()
+  if (success) {
+  } else {
+    toast.error('Erreur lors du chargement des paiements.')
   }
 })
+
+const filteredPayments = computed(() =>
+  payments.value.filter(
+    payment =>
+      (payment.utilisateur?.nom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (payment.methodePaiement?.nom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      payment.montant.toString().includes(searchQuery.value)
+  )
+)
+
+const confirmDelete = async id => {
+  const confirmation = confirm("Voulez-vous vraiment supprimer ce paiement ?")
+  if (confirmation) {
+    await deletePayment(id)
+  }
+}
+
+const deletePayment = async id => {
+  const { success } = await store.deletePayment(id)
+  if (success) {
+    toast.success('Paiement supprimé avec succès !')
+    await store.fetchPayments()
+  } else {
+    toast.error("Erreur lors de la suppression du paiement.")
+  }
+}
 </script>
-  
-  <style scoped>
-h1 {
-  color: #3fb59e;
+
+<style scoped>
+.title-margin {
   margin-block-start: 80px;
 }
 
 .btn- {
   background-color: #3fb59e;
   border-color: #3fb59e;
+}
+
+.search-icon {
+  background-color: #e0e0e0;
+}
+
+.table-bordered thead {
+  background-color: #3fb59e;
+  color: white;
+}
+
+.table-bordered th {
+  font-weight: bold;
+  padding: 12px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f9f9f9;
 }
 
 .btn-outline-info {
@@ -120,4 +166,3 @@ h1 {
   color: #dc3545;
 }
 </style>
-  

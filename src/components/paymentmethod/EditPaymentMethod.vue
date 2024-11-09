@@ -1,26 +1,65 @@
 <template>
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold" style="color: #3fb59e">
-      Modifier la Méthode de Paiement
-    </h1>
-
-    <div class="p-4 bg-light rounded shadow-sm">
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
+    <div class="p-5 bg-white rounded-4 shadow-lg form-container">
+      <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
+        Modifier la Méthode de Paiement
+      </h3>
       <form @submit.prevent="updateMethod">
-        <div class="mb-3">
-          <label for="nom" class="form-label fw-bold text-primary">Nom :</label>
-          <input
-            type="text"
-            id="nom"
-            class="form-control"
-            v-model="method.nom"
-            placeholder="Nom de la méthode de paiement"
-            required
-            :style="{ borderColor: '#3fb59e' }"
-          />
+        <div class="row gx-5">
+          <div class="col-md-6">
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="nom"
+                class="form-control"
+                v-model="method.nom"
+                placeholder="Nom de la méthode de paiement"
+                required
+              />
+              <label for="nom">
+                <i class="fas fa-credit-card me-2"></i>Nom de la Méthode
+              </label>
+            </div>
+
+            <div class="form-floating mb-4">
+              <select
+                id="utilisateurId"
+                class="form-select"
+                v-model="method.utilisateurId"
+                required
+              >
+                <option value="" disabled selected>
+                  Choisissez un utilisateur
+                </option>
+                <option v-for="user in users" :key="user.id" :value="user.id">
+                  {{ user.nom }}
+                </option>
+              </select>
+              <label for="utilisateurId">
+                <i class="fas fa-user me-2"></i>Utilisateur
+              </label>
+            </div>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary w-100 fw-bold mt-4" :style="{ backgroundColor: '#3fb59e', borderColor: '#3fb59e', color: '#ffffff' }">
-          <i class="fas fa-save"></i> Enregistrer les modifications
-        </button>
+
+        <div class="d-flex justify-content-between">
+          <button
+            type="button"
+            class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
+            @click="cancelEdit"
+          >
+            Annuler
+          </button>
+          <button
+            class="btn w-45 py-2 fw-bold shadow-sm"
+            type="submit"
+            style="background-color: #3fb59e; color: white"
+          >
+            <i class="fas fa-save me-2"></i>Enregistrer
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -30,58 +69,104 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePaymentMethodStore } from '@/store/paymentMethodStore.js'
+import { useUserStore } from '@/store/userStore.js'
 import { useToast } from 'vue-toastification'
 
 const paymentMethodStore = usePaymentMethodStore()
+const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 const toast = useToast()
 
 const method = ref({
   nom: '',
+  utilisateurId: null,
 })
+const users = ref([])
 
 onMounted(async () => {
-  const id = route.params.id
-  method.value = paymentMethodStore.getPaymentMethodById(id)
-  if (!method.value) {
-    router.push('/payment-methods')
+  try {
+    const id = route.params.id
+    await paymentMethodStore.fetchPaymentMethods()
+    await userStore.fetchUsers()
+
+    const existingMethod = paymentMethodStore.getPaymentMethodById(id)
+    if (existingMethod) {
+      method.value = { ...existingMethod }
+    } else {
+      toast.error('Méthode de paiement non trouvée.')
+      router.push('/payment-methods')
+    }
+
+    users.value = userStore.users
+  } catch (error) {
+    toast.error('Erreur lors du chargement des données.')
   }
 })
 
 const updateMethod = async () => {
   try {
-    await paymentMethodStore.updatePaymentMethod(method.value)
-    router.push('/payment-methods')
-    toast.success('Méthode de paiement modifiée avec succès !')
+    const result = await paymentMethodStore.updatePaymentMethod(method.value)
+    if (result.success) {
+      toast.success('Méthode de paiement modifiée avec succès !')
+      router.push('/payment-methods')
+    } else {
+      throw new Error(result.error || 'Erreur inconnue lors de la modification')
+    }
   } catch (error) {
+    console.error(
+      'Erreur lors de la modification de la méthode de paiement :',
+      error
+    )
     toast.error('Erreur lors de la modification de la méthode de paiement.')
   }
+}
+
+// Fonction d'annulation
+const cancelEdit = () => {
+  toast.info('Modification annulée.')
+  router.push('/payment-methods')
 }
 </script>
 
 <style scoped>
-h1 {
-  color: #3fb59e;
-  margin-block-start: 80px;
+.container {
+  min-block-size: 100vh;
 }
 
-.form-label {
-  color: #3fb59e;
+.form-container {
+  max-inline-size: 800px;
+  background-color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-  background-color: #3fb59e;
-  border-color: #3fb59e;
-  color: #ffffff;
+.form-floating label {
+  color: #6c757d;
 }
 
-.btn-primary:hover {
-  background-color: #349d87;
-  border-color: #349d87;
+.btn {
+  transition: all 0.3s ease;
 }
 
-.text-primary {
-  color: #3fb59e !important;
+.btn:hover {
+  background-color: #36a290;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.w-45 {
+  inline-size: 45%;
 }
 </style>

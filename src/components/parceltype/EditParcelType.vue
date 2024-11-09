@@ -1,47 +1,58 @@
 <template>
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center display-4 fw-bold" style="color: #3fb59e">
-      Modifier le Type de Colis
-    </h1>
-
-    <div class="p-4 bg-light rounded shadow-sm">
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="p-5 bg-white rounded-4 shadow-lg form-container">
+      <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
+        Modifier le Type de Colis
+      </h3>
       <form @submit.prevent="updateParcelType">
-        <div class="mb-3">
-          <label for="nom" class="form-label fw-bold text-primary">Nom :</label>
-          <input
-            type="text"
-            id="nom"
-            class="form-control"
-            v-model="type.nom"
-            placeholder="Entrez le nom du type de colis"
-            required
-          />
+        <div class="row gx-5">
+          <div class="col-md-6">
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="nom"
+                class="form-control"
+                v-model="type.nom"
+                placeholder="Nom du type de colis"
+                required
+              />
+              <label for="nom">
+                <i class="fas fa-box me-2"></i>Nom
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="utilisateur"
+                class="form-control"
+                :value="loadedUser.nom || connectedUser.nom"
+                placeholder="Utilisateur"
+                readonly
+              />
+              <label for="utilisateur">
+                <i class="fas fa-user me-2"></i>Utilisateur
+              </label>
+            </div>
+          </div>
         </div>
 
-        <div class="mb-3">
-          <label for="utilisateur" class="form-label fw-bold text-primary"
-            >Utilisateur :</label
-          >
-          <input
-            type="text"
-            id="utilisateur"
-            class="form-control"
-            :value="loadedUser.nom || connectedUser.nom"
-            placeholder="Utilisateur"
-            readonly
-          />
-        </div>
-
-        <div class="d-flex gap-3">
-          <button type="submit" class="btn btn-primary w-100 fw-bold">
-            <i class="fas fa-save"></i> Modifier Type de Colis
-          </button>
+        <div class="d-flex justify-content-between">
           <button
             type="button"
-            class="btn btn-secondary w-100 fw-bold"
+            class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
             @click="cancel"
           >
             Annuler
+          </button>
+
+          <button
+            class="btn w-45 py-2 fw-bold shadow-sm"
+            type="submit"
+            style="background-color: #3fb59e; color: white"
+          >
+            <i class="fas fa-save me-2"></i>Enregistrer
           </button>
         </div>
       </form>
@@ -112,31 +123,43 @@ const cancel = () => {
 </script>
 
 <style scoped>
-h1 {
-  color: #3fb59e;
-  margin-block-start: 80px;
+.container {
+  min-block-size: 100vh;
 }
 
-.form-label {
-  color: #3fb59e;
+.form-container {
+  max-inline-size: 800px;
+  background-color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-  background-color: #3fb59e;
-  border-color: #3fb59e;
+.form-floating label {
+  color: #6c757d;
 }
 
-.btn-primary:hover {
-  background-color: #349d87;
-  border-color: #349d87;
+.btn {
+  transition: all 0.3s ease;
 }
 
-.btn-secondary {
-  background-color: #f5f5f5;
-  color: #3fb59e;
+.btn:hover {
+  background-color: #36a290;
 }
 
-.btn-secondary:hover {
-  background-color: #e2e2e2;
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.w-45 {
+  inline-size: 45%;
 }
 </style>

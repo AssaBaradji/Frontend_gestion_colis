@@ -1,82 +1,143 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
-import { useToast } from 'vue-toastification'
 import { useAuthStore } from './authStore'
-
-const toast = useToast()
+import { useUserStore } from './userStore'
+import { useParcelStore } from './parcelStore'
+import { usePaymentMethodStore } from './paymentMethodStore'
 
 export const usePaymentStore = defineStore('paymentStore', () => {
   const payments = ref([])
   const loading = ref(false)
-  const auth = useAuthStore();
+  const auth = useAuthStore()
+  const authToken = `Bearer ${auth.token}`
 
+  const userStore = useUserStore()
+  const parcelStore = useParcelStore()
+  const paymentMethodStore = usePaymentMethodStore()
 
   const fetchPayments = async () => {
     loading.value = true
     try {
-      const response = await axios.get('http://localhost:3000/paiements',{
+      await Promise.all([
+        userStore.fetchUsers(),
+        parcelStore.fetchParcels(),
+        paymentMethodStore.fetchPaymentMethods(),
+      ])
+
+      const response = await axios.get('http://localhost:3000/paiements', {
         headers: {
-          Authorization: `Bearer ${auth.token}`
-        }
+          Authorization: authToken,
+        },
       })
-      payments.value = response.data
+
+      payments.value = response.data.map(payment => ({
+        ...payment,
+        utilisateur: userStore.users.find(
+          user => user.id === payment.utilisateurId,
+        ) || { nom: 'Non attribué' },
+        colis: parcelStore.parcels.find(
+          parcel => parcel.id === payment.colisId,
+        ) || { code_colis: 'Non attribué' },
+        methodePaiement: paymentMethodStore.paymentMethods.find(
+          method => method.id === payment.methodeId,
+        ) || { nom: 'Non attribué' },
+      }))
+      return { success: true }
     } catch (error) {
-      toast.error("Erreur lors du chargement des paiements.")
+      console.error('Erreur lors du chargement des paiements :', error)
+      return { success: false, error }
     } finally {
       loading.value = false
     }
   }
 
   const addPayment = async payment => {
-    const auth = useAuthStore();
     try {
-      const response = await axios.post('http://localhost:3000/paiements', payment,{
-        headers: {
-          Authorization: `Bearer ${auth.token}`
-        }
+      const response = await axios.post(
+        'http://localhost:3000/paiements',
+        payment,
+        {
+          headers: {
+            Authorization: authToken,
+          },
+        },
+      )
+
+      payments.value.push({
+        ...response.data,
+        utilisateur: userStore.users.find(
+          user => user.id === response.data.utilisateurId,
+        ) || { nom: 'Non attribué' },
+        colis: parcelStore.parcels.find(
+          parcel => parcel.id === response.data.colisId,
+        ) || { code_colis: 'Non attribué' },
+        methodePaiement: paymentMethodStore.paymentMethods.find(
+          method => method.id === response.data.methodeId,
+        ) || { nom: 'Non attribué' },
       })
-      payments.value.push(response.data)
-      toast.success("Paiement ajouté avec succès !")
+
+      await fetchPayments()
+      return { success: true }
     } catch (error) {
-      toast.error("Erreur lors de l'ajout du paiement.")
+      console.error("Erreur lors de l'ajout du paiement :", error)
+      return { success: false, error }
     }
   }
 
   const updatePayment = async updatedPayment => {
-    const auth = useAuthStore();
     try {
-      const response = await axios.put(`http://localhost:3000/paiements/${updatedPayment.id}`, updatedPayment,{
-        headers: {
-          Authorization: `Bearer ${auth.token}`
-        }
-      })
-      const index = payments.value.findIndex(p => p.id === updatedPayment.id)
+      const response = await axios.put(
+        `http://localhost:3000/paiements/${updatedPayment.id}`,
+        updatedPayment,
+        {
+          headers: {
+            Authorization: authToken,
+          },
+        },
+      )
+      const index = payments.value.findIndex(
+        payment => payment.id === updatedPayment.id,
+      )
       if (index !== -1) {
-        payments.value[index] = response.data
-        toast.success("Paiement mis à jour avec succès !")
+        payments.value[index] = {
+          ...response.data,
+          utilisateur: userStore.users.find(
+            user => user.id === response.data.utilisateurId,
+          ) || { nom: 'Non attribué' },
+          colis: parcelStore.parcels.find(
+            parcel => parcel.id === response.data.colisId,
+          ) || { code_colis: 'Non attribué' },
+          methodePaiement: paymentMethodStore.paymentMethods.find(
+            method => method.id === response.data.methodeId,
+          ) || { nom: 'Non attribué' },
+        }
+        return { success: true }
       }
+      return { success: false, error: 'Paiement non trouvé' }
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour du paiement.")
+      console.error('Erreur lors de la mise à jour du paiement :', error)
+      return { success: false, error }
     }
   }
 
   const deletePayment = async id => {
-    const auth = useAuthStore();
     try {
-      await axios.delete(`http://localhost:3000/paiements/${id}`,{
+      await axios.delete(`http://localhost:3000/paiements/${id}`, {
         headers: {
-          Authorization: `Bearer ${auth.token}`
-        }
+          Authorization: authToken,
+        },
       })
       payments.value = payments.value.filter(payment => payment.id !== id)
-      toast.success("Paiement supprimé avec succès !")
+      return { success: true }
     } catch (error) {
-      toast.error("Erreur lors de la suppression du paiement.")
+      console.error('Erreur lors de la suppression du paiement :', error)
+      return { success: false, error }
     }
   }
 
-  const paymentById = id => payments.value.find(payment => payment.id === parseInt(id))
+  const paymentById = id =>
+    payments.value.find(payment => payment.id === parseInt(id))
 
   return {
     payments,

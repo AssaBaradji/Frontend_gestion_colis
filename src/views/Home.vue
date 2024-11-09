@@ -4,56 +4,96 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="container">
-    <div class="text-center mt-5 mb-5">
-      <h1 class="display-4 fw-bold mb-4">{{ t('home_page.welcome') }}</h1>
-      <p class="lead mb-5">{{ t('home_page.description') }}</p>
-      <div class="row mt-5">
-        <div class="col-md-4 mb-4">
-          <img
-            src="../assets/images/livraison.avif"
-            class="img-fluid img-large rounded"
-            alt="Utilisateurs"
-          />
-        </div>
+  <div class="container mt-5">
+    <div class="text-section p-4 mb-5 rounded">
+      <h1 class="display-4 fw-bold mb-4 text-gradient">
+        {{ t('home_page.welcome') }}
+      </h1>
+      <p class="lead mb-4">{{ t('home_page.description') }}</p>
+    </div>
 
-        <div class="col-md-4 mb-4">
-          <img
-            src="../assets/images/expedition.jpg"
-            class="img-fluid img-milieu rounded"
-            alt="Expéditions"
-          />
+    <div class="row text-center expanded-cards">
+      <div class="col-md-4 mb-4">
+        <div class="info-card p-4">
+          <i class="fas fa-box fa-3x mb-3" style="color: #3fb59e"></i>
+          <h5>Gestion des Colis</h5>
+          <p>Suivez et gérez vos colis avec simplicité et efficacité.</p>
         </div>
-
-        <div class="col-md-4 mb-4">
-          <img
-            src="../assets/images/colis.jpg"
-            class="img-fluid img-large rounded"
-            alt="Paiements"
-          />
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="info-card p-4">
+          <i class="fas fa-truck-moving fa-3x mb-3" style="color: #3fb59e"></i>
+          <h5>Expéditions Rapides</h5>
+          <p>Bénéficiez d’un service d’expédition rapide et fiable.</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="info-card p-4">
+          <i class="fas fa-shipping-fast fa-3x mb-3" style="color: #3fb59e"></i>
+          <h5>Livraisons Sécurisées</h5>
+          <p>
+            Profitez d'une livraison sûre pour vos produits et marchandises.
+          </p>
         </div>
       </div>
     </div>
   </div>
+
+  <footer class="footer mt-5">
+    <p>&copy; 2024 Votre Nom ou Entreprise. Tous droits réservés.</p>
+  </footer>
 </template>
 
 <style scoped>
-.container h1 {
-  margin-block-start: 80px;
+.text-section {
+  background: #ffffff;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  margin-block-start: 100px;
+  padding: 30px;
 }
 
-.img-fluid {
-  max-block-size: 200px;
-  object-fit: cover;
+.text-section:hover {
+  transform: translateY(-10px);
 }
 
-.img-large {
-  max-block-size: 600px;
+.text-gradient {
+  background: linear-gradient(45deg, #3fb59e, #36a290);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.img-milieu {
-  max-block-size: 500px;
+.expanded-cards {
+  max-inline-size: 100%;
+  padding: 0 20px;
+}
+
+.info-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+}
+
+.info-card i {
+  color: #3fb59e;
+}
+
+.footer {
+  position: relative;
+  inline-size: 100%;
+  background-color: #3fb59e;
+  color: #ffffff;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.footer p {
+  margin: 0;
+  font-size: 0.9rem;
 }
 </style>
-
- 

@@ -1,11 +1,14 @@
 <template>
   <div class="container mt-5">
-    <h1 class="mb-4 text-center display-4 fw-bold" style="color: #3fb59e; margin-block-start: 80px;">
+    <h1
+      class="mb-4 text-center display-4 fw-bold"
+      style="color: #3fb59e; margin-block-start: 80px"
+    >
       Ajouter une Méthode de Paiement
     </h1>
 
     <div class="p-4 bg-light rounded shadow-sm">
-      <form @submit.prevent="addMethod">
+      <form @submit.prevent="addPaymentMethod">
         <div class="mb-3">
           <label for="nom" class="form-label fw-bold text-primary">
             Nom :
@@ -19,7 +22,7 @@
             required
           />
         </div>
-        
+
         <button type="submit" class="btn btn-primary w-100 fw-bold mt-4">
           <i class="fas fa-save"></i> Ajouter
         </button>
@@ -29,27 +32,42 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { usePaymentMethodStore } from '@/store/paymentMethodStore.js'
+import { useAuthStore } from '@/store/authStore.js'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 const paymentMethodStore = usePaymentMethodStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 
 const method = ref({
   nom: '',
+  utilisateurId: authStore.currentUser?.id || null,
 })
 
-const addMethod = async () => {
+onMounted(() => {
+  if (!method.value.utilisateurId && authStore.currentUser) {
+    method.value.utilisateurId = authStore.currentUser.id
+  }
+})
+
+const addPaymentMethod = async () => {
   try {
-    await paymentMethodStore.addPaymentMethod(method.value)
-    router.push('/payment-methods')
-    toast.success('Méthode de paiement ajoutée avec succès !')
+    const result = await paymentMethodStore.addPaymentMethod(method.value)
+    if (result.success) {
+      toast.success('Méthode de paiement ajoutée avec succès !')
+      // Redirection vers la page de la liste
+      await paymentMethodStore.fetchPaymentMethods() // Recharger les méthodes de paiement
+      router.push('/payment-methods')
+    } else {
+      toast.error("Erreur lors de l'ajout de la méthode de paiement.")
+      throw new Error(result.error)
+    }
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de la méthode de paiement :', error)
-    toast.error("Erreur lors de l'ajout de la méthode de paiement.")
+    console.error("Erreur lors de l'ajout de la méthode de paiement :", error)
   }
 }
 </script>

@@ -13,8 +13,8 @@ export const useUserStore = defineStore('userStore', () => {
     try {
       const response = await axios.get('http://localhost:3000/utilisateurs', {
         headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
+          Authorization: `Bearer ${auth.token}`
+        }
       })
       users.value = response.data
       console.log('Utilisateurs chargés :', users.value)
@@ -33,9 +33,9 @@ export const useUserStore = defineStore('userStore', () => {
         user,
         {
           headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        },
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       users.value.push(response.data)
       console.log('Utilisateur ajouté :', response.data)
@@ -52,9 +52,9 @@ export const useUserStore = defineStore('userStore', () => {
         updatedUser,
         {
           headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        },
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
       )
       const index = users.value.findIndex(user => user.id === updatedUser.id)
       if (index !== -1) {
@@ -71,8 +71,8 @@ export const useUserStore = defineStore('userStore', () => {
     try {
       await axios.delete(`http://localhost:3000/utilisateurs/${id}`, {
         headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
+          Authorization: `Bearer ${auth.token}`
+        }
       })
       users.value = users.value.filter(user => user.id !== id)
       console.log('Utilisateur supprimé :', id)

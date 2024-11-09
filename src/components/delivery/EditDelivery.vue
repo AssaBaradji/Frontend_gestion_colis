@@ -1,17 +1,13 @@
 <template>
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold" style="color: #3fb59e">
-      Modifier la Livraison
-    </h1>
-    <div class="p-4 bg-light rounded shadow-sm">
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="p-5 bg-white rounded-4 shadow-lg form-container">
+      <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
+        Modifier la Livraison
+      </h3>
       <form @submit.prevent="updateDelivery">
-        <!-- Champs similaires à AddDelivery.vue avec `v-model` lié à `delivery` -->
-        <div class="row">
+        <div class="row gx-5">
           <div class="col-md-6">
-            <div class="mb-3">
-              <label for="nom" class="form-label fw-bold text-primary"
-                >Nom :</label
-              >
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="nom"
@@ -20,11 +16,12 @@
                 placeholder="Nom"
                 required
               />
+              <label for="nom">
+                <i class="fas fa-user me-2"></i>Nom
+              </label>
             </div>
-            <div class="mb-3">
-              <label for="prenom" class="form-label fw-bold text-primary"
-                >Prénom :</label
-              >
+
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="prenom"
@@ -33,13 +30,12 @@
                 placeholder="Prénom"
                 required
               />
+              <label for="prenom">
+                <i class="fas fa-user me-2"></i>Prénom
+              </label>
             </div>
-            <div class="mb-3">
-              <label
-                for="date_livraison"
-                class="form-label fw-bold text-primary"
-                >Date de Livraison :</label
-              >
+
+            <div class="form-floating mb-4">
               <input
                 type="date"
                 id="date_livraison"
@@ -47,13 +43,14 @@
                 v-model="delivery.date_livraison"
                 required
               />
+              <label for="date_livraison">
+                <i class="fas fa-calendar-alt me-2"></i>Date de Livraison
+              </label>
             </div>
           </div>
+
           <div class="col-md-6">
-            <div class="mb-3">
-              <label for="telephone" class="form-label fw-bold text-primary"
-                >Téléphone :</label
-              >
+            <div class="form-floating mb-4">
               <input
                 type="tel"
                 id="telephone"
@@ -62,20 +59,19 @@
                 placeholder="Téléphone"
                 required
               />
+              <label for="telephone">
+                <i class="fas fa-phone me-2"></i>Téléphone
+              </label>
             </div>
-            <div class="mb-3">
-              <label for="expeditionId" class="form-label fw-bold text-primary"
-                >Expédition :</label
-              >
+
+            <div class="form-floating mb-4">
               <select
                 id="expeditionId"
                 class="form-select"
                 v-model="delivery.expeditionId"
                 required
               >
-                <option value="" disabled selected>
-                  Choisissez une expédition
-                </option>
+                <option value="" disabled selected>Choisissez une expédition</option>
                 <option
                   v-for="expedition in expeditions"
                   :key="expedition.id"
@@ -84,52 +80,66 @@
                   {{ expedition.nom_destinataire }}
                 </option>
               </select>
+              <label for="expeditionId">
+                <i class="fas fa-truck me-2"></i>Expédition
+              </label>
             </div>
-            <div class="mb-3">
-              <label for="utilisateurId" class="form-label fw-bold text-primary"
-                >Utilisateur :</label
-              >
-              <select
-                id="utilisateurId"
-                class="form-select"
-                v-model="delivery.utilisateurId"
-              >
-                <option value="" disabled selected>
-                  Choisissez un utilisateur
-                </option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nom }}
-                </option>
-              </select>
+
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="utilisateur"
+                class="form-control"
+                :value="authStore.utilisateurNom"
+                placeholder="Utilisateur"
+                readonly
+              />
+              <label for="utilisateur">
+                <i class="fas fa-user me-2"></i>Utilisateur
+              </label>
             </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary w-100 fw-bold mt-4">
-          <i class="fas fa-save"></i> Enregistrer les modifications
-        </button>
+
+        <div class="d-flex justify-content-between">
+          <button
+            type="button"
+            class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
+            @click="cancelEdit"
+          >
+            Annuler
+          </button>
+
+          <button
+            class="btn w-45 py-2 fw-bold shadow-sm"
+            type="submit"
+            style="background-color: #3fb59e; color: white"
+          >
+            <i class="fas fa-save me-2"></i>Enregistrer
+          </button>
+        </div>
       </form>
     </div>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDeliveryStore } from '@/store/deliveryStore.js'
-import { useShipmentStore } from '@/store/shipmentStore.js' 
-import { useUserStore } from '@/store/userStore.js'
+import { useShipmentStore } from '@/store/shipmentStore.js'
+import { useAuthStore } from '@/store/authStore'
 import { useToast } from 'vue-toastification'
 
 const deliveryStore = useDeliveryStore()
-const shipmentStore = useShipmentStore() 
-const userStore = useUserStore()
+const shipmentStore = useShipmentStore()
+const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
 const delivery = ref({})
 const expeditions = ref([])
-const users = ref([])
 
 onMounted(async () => {
   const id = route.params.id
@@ -138,29 +148,66 @@ onMounted(async () => {
     if (!delivery.value) router.push('/delivery')
 
     await shipmentStore.fetchShipments()
-    await userStore.fetchUsers()
     expeditions.value = shipmentStore.shipments
-    users.value = userStore.users
   } catch (error) {
-    // toast.error('Erreur lors du chargement des données.')
+    toast.error('Erreur lors du chargement des données.')
   }
 })
 
 const updateDelivery = async () => {
   try {
     await deliveryStore.updateDelivery(delivery.value)
+    toast.success('Livraison modifiée avec succès !')
     router.push('/delivery')
-    // toast.success('Livraison modifiée avec succès !')
   } catch (error) {
-    // toast.error('Erreur lors de la modification de la livraison.')
+    toast.error('Erreur lors de la modification de la livraison.')
   }
 }
+
+const cancelEdit = () => {
+  toast.info('Modification annulée.')
+  router.push('/delivery')
+}
 </script>
-  
-  <style scoped>
-h1 {
-  color: #3fb59e;
-  margin-block-start: 80px;
+
+<style scoped>
+.container {
+  min-block-size: 100vh;
+}
+
+.form-container {
+  max-inline-size: 800px;
+  background-color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-floating label {
+  color: #6c757d;
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #36a290;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.w-45 {
+  inline-size: 45%;
 }
 </style>
-  

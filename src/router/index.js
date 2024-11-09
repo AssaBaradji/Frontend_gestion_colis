@@ -32,15 +32,27 @@ import AddPayment from '@/components/payment/AddPayment.vue'
 import EditPayment from '@/components/payment/EditPayment.vue'
 import ShowPayment from '@/components/payment/ShowPayment.vue'
 
-// Import des composants pour la gestion des livraisons
 import DeliveryList from '@/components/delivery/DeliveryList.vue'
 import AddDelivery from '@/components/delivery/AddDelivery.vue'
 import EditDelivery from '@/components/delivery/EditDelivery.vue'
 import ShowDelivery from '@/components/delivery/ShowDelivery.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home, meta: { requiresAuth: true } },
+  { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
+
+  {
+    path: '/home',
+    name: 'Home',
+    component: Home,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/users',
+    name: 'ListUser',
+    component: UserList,
+    meta: { requiresAuth: true },
+  },
 
   {
     path: '/users',
@@ -69,122 +81,161 @@ const routes = [
     meta: { requiresAuth: true },
   },
 
-  { path: '/parcels', name: 'ParcelList', component: ParcelList , meta: { requiresAuth: true } },
+  {
+    path: '/parcels',
+    name: 'ParcelList',
+    component: ParcelList,
+    meta: { requiresAuth: true },
+  },
   { path: '/parcels/add', name: 'AddParcel', component: AddParcel },
   {
     path: '/parcels/edit/:id',
     name: 'EditParcel',
     component: EditParcel,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/parcels/show/:id',
     name: 'ShowParcel',
     component: ShowParcel,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
 
-  { path: '/parcel-types', name: 'ParcelTypeList', component: ParcelTypeList, meta: { requiresAuth: true } },
+  {
+    path: '/parcel-types',
+    name: 'ParcelTypeList',
+    component: ParcelTypeList,
+    meta: { requiresAuth: true },
+  },
   {
     path: '/parcel-types/add',
     name: 'AddParcelType',
     component: AddParcelType,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/parcel-types/edit/:id',
     name: 'EditParcelType',
     component: EditParcelType,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/parcel-types/show/:id',
     name: 'ShowParcelType',
     component: ShowParcelType,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
 
-  { path: '/shipments', name: 'ShipmentList', component: ShipmentList, meta: { requiresAuth: true } },
-  { path: '/shipments/add', name: 'AddShipment', component: AddShipment, meta: { requiresAuth: true } },
+  {
+    path: '/shipments',
+    name: 'ShipmentList',
+    component: ShipmentList,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/shipments/add',
+    name: 'AddShipment',
+    component: AddShipment,
+    meta: { requiresAuth: true },
+  },
   {
     path: '/shipments/edit/:id',
     name: 'EditShipment',
     component: EditShipment,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/shipments/show/:id',
     name: 'ShowShipment',
     component: ShowShipment,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
 
   {
     path: '/payment-methods',
     name: 'PaymentMethodList',
     component: PaymentMethodList,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/payment-methods/add',
     name: 'AddPaymentMethod',
     component: AddPaymentMethod,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/payment-methods/edit/:id',
     name: 'EditPaymentMethod',
     component: EditPaymentMethod,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/payment-methods/show/:id',
     name: 'ShowPaymentMethod',
     component: ShowPaymentMethod,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
 
-  { path: '/payments', name: 'PaymentList', component: PaymentList, meta: { requiresAuth: true } },
-  { path: '/payments/add', name: 'AddPayment', component: AddPayment, meta: { requiresAuth: true } },
+  {
+    path: '/payments',
+    name: 'PaymentList',
+    component: PaymentList,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/payments/add',
+    name: 'AddPayment',
+    component: AddPayment,
+    meta: { requiresAuth: true },
+  },
   {
     path: '/payments/edit/:id',
     name: 'EditPayment',
     component: EditPayment,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/payments/show/:id',
     name: 'ShowPayment',
     component: ShowPayment,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
 
-  // Routes pour les livraisons
-  { path: '/delivery', name: 'DeliveryList', component: DeliveryList, meta: { requiresAuth: true } },
-  { path: '/delivery/add', name: 'AddDelivery', component: AddDelivery, meta: { requiresAuth: true } },
+  {
+    path: '/delivery',
+    name: 'DeliveryList',
+    component: DeliveryList,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/delivery/add',
+    name: 'AddDelivery',
+    component: AddDelivery,
+    meta: { requiresAuth: true },
+  },
   {
     path: '/delivery/edit/:id',
     name: 'EditDelivery',
     component: EditDelivery,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/delivery/show/:id',
     name: 'ShowDelivery',
     component: ShowDelivery,
     props: true,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
 ]
 
@@ -193,11 +244,12 @@ const router = createRouter({
   routes,
 })
 
-// Garde de navigation pour vérifier l'authentification
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login' })
+  } else if (to.name === 'Login' && authStore.isAuthenticated) {
+    next({ name: 'Home' })
   } else {
     next()
   }
