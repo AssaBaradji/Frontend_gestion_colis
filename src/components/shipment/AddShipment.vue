@@ -1,87 +1,73 @@
 <template>
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center display-4 fw-bold" style="color: #3fb59e">
-      Ajouter une Expédition
-    </h1>
-
-    <div class="p-4 bg-light rounded shadow-sm">
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
+    <div class="p-5 bg-white rounded-4 shadow-lg form-container">
+      <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
+        Ajouter une Expédition
+      </h3>
       <form @submit.prevent="addShipment">
-        <div class="row">
+        <div class="row gx-5">
           <div class="col-md-6">
-            <div class="mb-3">
-              <label
-                for="nom_destinataire"
-                class="form-label fw-bold text-primary"
-              >
-                Nom du Destinataire:
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="nom_destinataire"
                 class="form-control"
                 v-model="shipment.nom_destinataire"
-                placeholder="Entrez le nom du destinataire"
+                placeholder="Nom du destinataire"
                 required
               />
+              <label for="nom_destinataire">
+                <i class="fas fa-user me-2"></i>Nom du Destinataire
+              </label>
             </div>
 
-            <div class="mb-3">
-              <label
-                for="prenom_destinataire"
-                class="form-label fw-bold text-primary"
-              >
-                Prénom du Destinataire:
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="prenom_destinataire"
                 class="form-control"
                 v-model="shipment.prenom_destinataire"
-                placeholder="Entrez le prénom du destinataire"
+                placeholder="Prénom du destinataire"
                 required
               />
+              <label for="prenom_destinataire">
+                <i class="fas fa-user me-2"></i>Prénom du Destinataire
+              </label>
             </div>
 
-            <div class="mb-3">
-              <label
-                for="telephone_destinataire"
-                class="form-label fw-bold text-primary"
-              >
-                Téléphone du Destinataire:
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="tel"
                 id="telephone_destinataire"
                 class="form-control"
                 v-model="shipment.telephone_destinataire"
-                placeholder="Entrez le téléphone du destinataire"
+                placeholder="Téléphone du destinataire"
                 required
               />
+              <label for="telephone_destinataire">
+                <i class="fas fa-phone me-2"></i>Téléphone du Destinataire
+              </label>
             </div>
 
-            <div class="mb-3">
-              <label for="destination" class="form-label fw-bold text-primary">
-                Destination:
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="destination"
                 class="form-control"
                 v-model="shipment.destination"
-                placeholder="Entrez la destination"
+                placeholder="Destination"
                 required
               />
+              <label for="destination">
+                <i class="fas fa-map-marker-alt me-2"></i>Destination
+              </label>
             </div>
           </div>
 
           <div class="col-md-6">
-            <div class="mb-3">
-              <label
-                for="date_expedition"
-                class="form-label fw-bold text-primary"
-              >
-                Date d'Expédition:
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="date"
                 id="date_expedition"
@@ -89,12 +75,12 @@
                 v-model="shipment.date_expedition"
                 required
               />
+              <label for="date_expedition">
+                <i class="fas fa-calendar-alt me-2"></i>Date d'Expédition
+              </label>
             </div>
 
-            <div class="mb-3">
-              <label for="colisId" class="form-label fw-bold text-primary">
-                Colis:
-              </label>
+            <div class="form-floating mb-4">
               <select
                 id="colisId"
                 class="form-select"
@@ -102,43 +88,53 @@
                 required
               >
                 <option value="" disabled selected>Choisissez un colis</option>
-                <option
-                  v-for="parcel in parcels"
-                  :key="parcel.id"
-                  :value="parcel.id"
-                >
+                <option v-for="parcel in parcels" :key="parcel.id" :value="parcel.id">
                   {{ parcel.code_colis }}
                 </option>
               </select>
+              <label for="colisId">
+                <i class="fas fa-box me-2"></i>Colis
+              </label>
             </div>
 
-            <div class="mb-3">
-              <label
-                for="utilisateurId"
-                class="form-label fw-bold text-primary"
-              >
-                Utilisateur:
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="utilisateurId"
-                class="form-control"
+                class="form-control readonly-input"
                 :value="connectedUser.nom"
+                placeholder="Utilisateur"
                 readonly
               />
+              <label for="utilisateurId">
+                <i class="fas fa-user me-2"></i>Utilisateur
+              </label>
             </div>
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 fw-bold mt-4">
-          <i class="fas fa-save"></i> Ajouter Expédition
-        </button>
+        <div class="d-flex justify-content-between">
+          <button
+            type="button"
+            class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
+            @click="cancelAdd"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="btn w-45 py-2 fw-bold shadow-sm"
+            style="background-color: #3fb59e; color: white"
+          >
+            <i class="fas fa-save"></i> Ajouter Expédition
+          </button>
+        </div>
       </form>
     </div>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useShipmentStore } from '@/store/shipmentStore.js'
 import { useParcelStore } from '@/store/parcelStore.js'
@@ -152,27 +148,23 @@ const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 
-
 const shipment = ref({
   nom_destinataire: '',
   prenom_destinataire: '',
   telephone_destinataire: '',
   destination: '',
   date_expedition: '',
-  utilisateurId: authStore.currentUser?.id || null, // Utilisateur connecté
+  utilisateurId: authStore.currentUser?.id || null,
   colisId: '',
 })
 
-// Liste des colis
 const parcels = ref([])
 
-// Chargement des colis
 onMounted(async () => {
   try {
     await parcelStore.fetchParcels()
     parcels.value = parcelStore.parcels
 
-    // Assurer que l'utilisateur connecté est assigné
     if (!shipment.value.utilisateurId && authStore.currentUser) {
       shipment.value.utilisateurId = authStore.currentUser.id
     }
@@ -182,7 +174,6 @@ onMounted(async () => {
   }
 })
 
-// Fonction d'ajout d'une expédition
 const addShipment = async () => {
   try {
     const result = await shipmentStore.addShipment(shipment.value)
@@ -198,32 +189,63 @@ const addShipment = async () => {
   }
 }
 
-// Récupérer les informations de l'utilisateur connecté
+const cancelAdd = () => {
+  toast.info('Ajout d\'expédition annulé.')
+  router.push('/shipments')
+}
+
 const connectedUser = authStore.currentUser
 </script>
-  
-  <style scoped>
-h1 {
-  color: #3fb59e;
-  margin-block-start: 80px;
+
+<style scoped>
+.container {
+  min-block-size: 100vh;
 }
 
-.form-label {
-  color: #3fb59e;
+.form-container {
+  max-inline-size: 800px;
+  background-color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-  background-color: #3fb59e;
-  border-color: #3fb59e;
+.form-floating label {
+  color: #6c757d;
 }
 
-.btn-primary:hover {
-  background-color: #349d87;
-  border-color: #349d87;
+.btn {
+  transition: all 0.3s ease;
 }
 
-.text-primary {
-  color: #3fb59e !important;
+.btn:hover {
+  background-color: #36a290;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.form-floating .readonly-input:focus {
+  border-color: #ddd !important;
+  box-shadow: none;
+}
+
+.w-45 {
+  inline-size: 45%;
 }
 </style>
-  

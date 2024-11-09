@@ -1,16 +1,13 @@
 <template>
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center display-4 fw-bold" style="color: #3fb59e">
-      Ajouter une Livraison
-    </h1>
-    <div class="p-4 bg-light rounded shadow-sm">
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="p-5 bg-white rounded-4 shadow-lg form-container">
+      <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
+        Ajouter une Livraison
+      </h3>
       <form @submit.prevent="handleAddDelivery">
-        <div class="row">
+        <div class="row gx-5">
           <div class="col-md-6">
-            <div class="mb-3">
-              <label for="nom" class="form-label fw-bold text-primary">
-                Nom :
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="nom"
@@ -19,11 +16,10 @@
                 placeholder="Nom"
                 required
               />
+              <label for="nom">Nom</label>
             </div>
-            <div class="mb-3">
-              <label for="prenom" class="form-label fw-bold text-primary">
-                Prénom :
-              </label>
+
+            <div class="form-floating mb-4">
               <input
                 type="text"
                 id="prenom"
@@ -32,14 +28,10 @@
                 placeholder="Prénom"
                 required
               />
+              <label for="prenom">Prénom</label>
             </div>
-            <div class="mb-3">
-              <label
-                for="date_livraison"
-                class="form-label fw-bold text-primary"
-              >
-                Date de Livraison :
-              </label>
+
+            <div class="form-floating mb-4">
               <input
                 type="date"
                 id="date_livraison"
@@ -47,13 +39,12 @@
                 v-model="delivery.date_livraison"
                 required
               />
+              <label for="date_livraison">Date de Livraison</label>
             </div>
           </div>
+
           <div class="col-md-6">
-            <div class="mb-3">
-              <label for="telephone" class="form-label fw-bold text-primary">
-                Téléphone :
-              </label>
+            <div class="form-floating mb-4">
               <input
                 type="tel"
                 id="telephone"
@@ -62,43 +53,52 @@
                 placeholder="Téléphone"
                 required
               />
+              <label for="telephone">Téléphone</label>
             </div>
-            <div class="mb-3">
-              <label for="expeditionId" class="form-label fw-bold text-primary">
-                Expédition :
-              </label>
+
+            <div class="form-floating mb-4">
               <select
                 id="expeditionId"
                 class="form-select"
                 v-model="delivery.expeditionId"
                 required
               >
-                <option value="" disabled selected>
-                  Choisissez une expédition
-                </option>
-                <option
-                  v-for="expedition in expeditions"
-                  :key="expedition.id"
-                  :value="expedition.id"
-                >
+                <option value="" disabled selected>Choisissez une expédition</option>
+                <option v-for="expedition in expeditions" :key="expedition.id" :value="expedition.id">
                   {{ expedition.nom_destinataire }}
                 </option>
               </select>
+              <label for="expeditionId">Expédition</label>
             </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold text-primary">Utilisateur :</label>
+
+            <div class="form-floating mb-4">
               <input
                 type="text"
-                class="form-control"
+                class="form-control readonly-input"
                 :value="authStore.utilisateurNom"
                 readonly
               />
+              <label>Utilisateur</label>
             </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary w-100 fw-bold mt-4">
-          <i class="fas fa-save"></i> Ajouter Livraison
-        </button>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button
+            type="button"
+            class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
+            @click="cancelAdd"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="btn w-45 py-2 fw-bold shadow-sm"
+            style="background-color: #3fb59e; color: white"
+          >
+            <i class="fas fa-save me-2"></i> Ajouter Livraison
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -124,7 +124,7 @@ const delivery = ref({
   date_livraison: '',
   telephone: '',
   expeditionId: '',
-  utilisateurId: authStore.utilisateurId, // Utilisateur connecté
+  utilisateurId: authStore.utilisateurId,
 })
 
 const expeditions = ref([])
@@ -153,29 +153,57 @@ const handleAddDelivery = async () => {
     toast.error("Erreur lors de l'ajout de la livraison.")
   }
 }
+
+const cancelAdd = () => {
+  toast.info('Ajout de livraison annulé.')
+  router.push('/delivery')
+}
 </script>
 
 <style scoped>
-h1 {
-  color: #3fb59e;
-  margin-block-start: 80px;
+.container {
+  min-block-size: 100vh;
 }
 
-.form-label {
-  color: #3fb59e;
+.form-container {
+  max-inline-size: 800px;
+  background-color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-  background-color: #3fb59e;
-  border-color: #3fb59e;
+.form-floating label {
+  color: #6c757d;
 }
 
-.btn-primary:hover {
-  background-color: #349d87;
-  border-color: #349d87;
+.btn {
+  transition: all 0.3s ease;
 }
 
-.text-primary {
-  color: #3fb59e !important;
+.btn:hover {
+  background-color: #36a290;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.w-45 {
+  inline-size: 45%;
 }
 </style>

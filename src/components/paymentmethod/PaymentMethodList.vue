@@ -193,7 +193,7 @@
   
   const filteredMethods = computed(() => {
     return mappedMethods.value.filter(method =>
-      method.nom.toLowerCase().includes(searchQuery.value.toLowerCase())
+      method.nom?.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   })
   

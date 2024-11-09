@@ -33,6 +33,7 @@
     <table v-else class="table table-striped table-bordered">
       <thead>
         <tr>
+          <th scope="col">ID</th>
           <th scope="col">Nom</th>
           <th scope="col">Email</th>
           <th scope="col">Rôle</th>
@@ -42,10 +43,20 @@
       </thead>
       <tbody>
         <tr v-for="user in filteredUsers" :key="user.id">
+          <td>{{ user.id }}</td>
           <td>{{ user.nom }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.role }}</td>
-          <td>{{ user.statut ? 'Actif' : 'Bloqué' }}</td>
+
+          <td>
+            {{
+              typeof user.statut === 'string'
+                ? user.statut
+                : user.statut
+                ? 'Actif'
+                : 'Bloqué'
+            }}
+          </td>
           <td class="text-center">
             <router-link
               :to="'/users/show/' + user.id"
@@ -89,8 +100,8 @@ onMounted(async () => {
 const filteredUsers = computed(() =>
   users.value.filter(
     user =>
-      user.nom.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+      user.nom?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 )
 
@@ -131,7 +142,6 @@ const deleteUser = async id => {
 }
 .search-icon {
   background-color: #e0e0e0;
-  /* color: #3fb59e; */
 }
 </style>
   

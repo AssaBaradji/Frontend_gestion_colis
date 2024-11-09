@@ -193,7 +193,7 @@ const mappedTypes = computed(() => {
 
 const filteredTypes = computed(() => {
   return mappedTypes.value.filter(type =>
-    type.nom.toLowerCase().includes(searchQuery.value.toLowerCase())
+    type.nom?.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
 

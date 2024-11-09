@@ -7,7 +7,7 @@
         Modifier la Méthode de Paiement
       </h3>
       <form @submit.prevent="updateMethod">
-        <div class="row gx-5">
+        <div class="row gx-3">
           <div class="col-md-6">
             <div class="form-floating mb-4">
               <input
@@ -22,22 +22,19 @@
                 <i class="fas fa-credit-card me-2"></i>Nom de la Méthode
               </label>
             </div>
+          </div>
 
+          <div class="col-md-6">
             <div class="form-floating mb-4">
-              <select
-                id="utilisateurId"
-                class="form-select"
-                v-model="method.utilisateurId"
-                required
-              >
-                <option value="" disabled selected>
-                  Choisissez un utilisateur
-                </option>
-                <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nom }}
-                </option>
-              </select>
-              <label for="utilisateurId">
+              <input
+                type="text"
+                id="utilisateur"
+                class="form-control"
+                :value="connectedUser.nom"
+                placeholder="Utilisateur"
+                readonly
+              />
+              <label for="utilisateur">
                 <i class="fas fa-user me-2"></i>Utilisateur
               </label>
             </div>
@@ -69,36 +66,35 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePaymentMethodStore } from '@/store/paymentMethodStore.js'
-import { useUserStore } from '@/store/userStore.js'
+import { useAuthStore } from '@/store/authStore.js'
 import { useToast } from 'vue-toastification'
 
 const paymentMethodStore = usePaymentMethodStore()
-const userStore = useUserStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const toast = useToast()
 
 const method = ref({
   nom: '',
-  utilisateurId: null,
+  utilisateurId: authStore.currentUser?.id || null,
 })
-const users = ref([])
+const connectedUser = ref(authStore.currentUser)
 
 onMounted(async () => {
   try {
     const id = route.params.id
     await paymentMethodStore.fetchPaymentMethods()
-    await userStore.fetchUsers()
 
     const existingMethod = paymentMethodStore.getPaymentMethodById(id)
     if (existingMethod) {
       method.value = { ...existingMethod }
+
+      method.value.utilisateurId = connectedUser.value.id
     } else {
       toast.error('Méthode de paiement non trouvée.')
       router.push('/payment-methods')
     }
-
-    users.value = userStore.users
   } catch (error) {
     toast.error('Erreur lors du chargement des données.')
   }
@@ -122,7 +118,6 @@ const updateMethod = async () => {
   }
 }
 
-// Fonction d'annulation
 const cancelEdit = () => {
   toast.info('Modification annulée.')
   router.push('/payment-methods')

@@ -1,7 +1,12 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
     <div v-if="isLoading" class="text-center">
-      <i class="fas fa-spinner fa-spin fa-2x" :style="{ color: primaryColor }"></i>
+      <i
+        class="fas fa-spinner fa-spin fa-3x"
+        :style="{ color: primaryColor }"
+      ></i>
     </div>
 
     <div v-else class="p-5 bg-white rounded-4 shadow-lg form-container">
@@ -20,9 +25,7 @@
                 placeholder="Nom de l'utilisateur"
                 required
               />
-              <label for="nom">
-                <i class="fas fa-user me-2"></i>Nom
-              </label>
+              <label for="nom"> <i class="fas fa-user me-2"></i>Nom </label>
             </div>
 
             <div class="form-floating mb-4">
@@ -73,16 +76,17 @@
           </div>
         </div>
 
-        <div class="form-check mb-4">
-          <input
-            class="form-check-input"
-            type="checkbox"
+        <div class="form-floating mb-4">
+          <select
+            id="statut"
+            class="form-select"
             v-model="user.statut"
-            id="statutCheck"
-          />
-          <label class="form-check-label" for="statutCheck" :style="{ color: primaryColor }">
-            Statut actif
-          </label>
+            required
+          >
+            <option value="actif">Actif</option>
+            <option value="bloqué">Bloqué</option>
+          </select>
+          <label for="statut">Statut</label>
         </div>
 
         <div class="d-flex justify-content-between">
@@ -111,10 +115,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/userStore'
+import { useToast } from 'vue-toastification'
 
 const store = useUserStore()
 const router = useRouter()
 const route = useRoute()
+const toast = useToast()
 const user = ref({})
 const isLoading = ref(true)
 
@@ -123,12 +129,22 @@ const textColor = '#FFFFFF'
 
 const loadUser = async () => {
   try {
-    user.value = await store.userById(route.params.id)
-    if (!user.value) {
+    const loadedUser = await store.userById(route.params.id)
+    if (!loadedUser) {
+      toast.error('Utilisateur introuvable', { id: 'error-load-user' })
       router.push('/users')
+      return
+    }
+
+    user.value = {
+      ...loadedUser,
+      statut: loadedUser.statut ? 'actif' : 'bloqué',
     }
   } catch (error) {
     console.error('Erreur lors du chargement des données :', error)
+    toast.error("Erreur lors du chargement de l'utilisateur", {
+      id: 'error-load-user',
+    })
   } finally {
     isLoading.value = false
   }
@@ -140,14 +156,27 @@ onMounted(() => {
 
 const updateUser = async () => {
   try {
-    await store.updateUser(user.value)
+    const updatedUser = {
+      ...user.value,
+      statut: user.value.statut === 'actif',
+    }
+    await store.updateUser(updatedUser)
+    toast.success('Utilisateur mis à jour avec succès', {
+      id: 'success-update-user',
+    })
     router.push('/users')
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l'utilisateur :", error)
+    if (!toast.isActive('error-update-user')) {
+      toast.error("Erreur lors de la mise à jour de l'utilisateur.", {
+        id: 'error-update-user',
+      })
+    }
   }
 }
 
 const cancelEdit = () => {
+  toast.info('cancel-edit-user')
   router.push('/users')
 }
 </script>
