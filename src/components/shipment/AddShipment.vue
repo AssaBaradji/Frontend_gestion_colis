@@ -100,14 +100,12 @@
             <div class="form-floating mb-4">
               <input
                 type="text"
-                id="utilisateurId"
                 class="form-control readonly-input"
-                :value="connectedUser.nom"
-                placeholder="Utilisateur"
+                :value="authStore.utilisateurNom"
                 readonly
               />
-              <label for="utilisateurId">
-                <i class="fas fa-user me-2"></i>Utilisateur
+              <label>
+                <i class="fas fa-user me-2"></i> Utilisateur
               </label>
             </div>
           </div>
@@ -184,8 +182,8 @@ const addShipment = async () => {
       throw new Error(result.error)
     }
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'expédition :", error)
-    toast.error("Erreur lors de l'ajout de l'expédition.")
+    console.error("Ce Colis est Déja Enregisté :", error)
+    toast.error("Ce Colis est Déja Enregisté.")
   }
 }
 

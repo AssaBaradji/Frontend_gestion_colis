@@ -1,4 +1,4 @@
-   <template>
+<template>
   <div class="container-fluid">
     <div
       class="modal fade"
@@ -31,7 +31,7 @@
           <div class="modal-body">
             <form v-if="user" class="user-details-form">
               <div class="mb-3">
-                <label class="form-label">Nom:</label>
+                <label class="form-label">Nom :</label>
                 <input
                   type="text"
                   class="form-control"
@@ -40,7 +40,7 @@
                 />
               </div>
               <div class="mb-3">
-                <label class="form-label">Email:</label>
+                <label class="form-label">Email :</label>
                 <input
                   type="text"
                   class="form-control"
@@ -49,7 +49,7 @@
                 />
               </div>
               <div class="mb-3">
-                <label class="form-label">Rôle:</label>
+                <label class="form-label">Rôle :</label>
                 <input
                   type="text"
                   class="form-control"
@@ -58,11 +58,11 @@
                 />
               </div>
               <div class="mb-3">
-                <label class="form-label">Statut:</label>
+                <label class="form-label">Statut :</label>
                 <input
                   type="text"
                   class="form-control"
-                  :value="user.statut ? 'Actif' : 'Bloqué'"
+                  :value="user.statut === 'actif' ? 'Actif' : 'Bloqué'"
                   readonly
                 />
               </div>
@@ -84,9 +84,9 @@
     </div>
   </div>
 </template>
-  
-  <script setup>
-import { ref, computed, onMounted } from 'vue'
+
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/store/userStore'
 import { useRouter, useRoute } from 'vue-router'
 import { Modal } from 'bootstrap'
@@ -95,23 +95,34 @@ const store = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
-const user = computed(() => store.userById(route.params.id))
 const userModal = ref(null)
+const user = ref(null)
+
+const loadUser = async () => {
+  user.value = await store.userById(route.params.id)
+  if (!user.value) {
+    router.push('/users')
+  }
+}
 
 const closeModal = () => {
   router.push('/users')
 }
 
-onMounted(async () => {
-  if (user.value) {
+watch(user, newUser => {
+  if (newUser) {
     const modalElement = userModal.value
     const bootstrapModal = new Modal(modalElement)
     bootstrapModal.show()
   }
 })
+
+onMounted(() => {
+  loadUser()
+})
 </script>
-  
-  <style scoped>
+
+<style scoped>
 .modal-content {
   max-inline-size: 500px;
   margin: auto;
@@ -155,4 +166,3 @@ onMounted(async () => {
   background-color: #36a290;
 }
 </style>
-  

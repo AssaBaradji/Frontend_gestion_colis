@@ -92,6 +92,15 @@
                 <i class="fas fa-tags me-2"></i>Type de Colis
               </label>
             </div>
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                class="form-control readonly-input"
+                :value="authStore.utilisateurNom"
+                readonly
+              />
+              <label><i class="fas fa-user me-2"></i>Utilisateur</label>
+            </div>
           </div>
         </div>
 

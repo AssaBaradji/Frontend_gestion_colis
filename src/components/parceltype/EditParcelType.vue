@@ -75,30 +75,37 @@ const router = useRouter()
 const route = useRoute()
 const toast = useToast()
 
+// Initialisation du type de colis avec une valeur par défaut pour éviter les erreurs d'accès aux valeurs nulles
 const type = ref({
   nom: '',
   utilisateurId: authStore.currentUser?.id || null,
 })
 const loadedUser = ref({})
-const connectedUser = ref(authStore.currentUser)
+const connectedUser = ref(authStore.currentUser || {})
 
+// Fonction de chargement des informations sur le type de colis
 const loadTypeColis = async () => {
   const id = route.params.id
   const existingType = store.typeColisById(id)
+
   if (existingType) {
     type.value = { ...existingType }
-    loadedUser.value =
-      userStore.users.find(user => user.id === type.value.utilisateurId) ||
-      connectedUser.value
+    loadedUser.value = userStore.users.find(user => user.id === type.value.utilisateurId) || connectedUser.value
   } else {
     toast.error('Type de colis non trouvé.')
     router.push('/parcel-types')
   }
 }
 
+// Chargement des utilisateurs et du type de colis à l'initialisation
 onMounted(async () => {
-  await userStore.fetchUsers()
-  loadTypeColis()
+  try {
+    await userStore.fetchUsers()
+    await loadTypeColis()
+  } catch (error) {
+    console.error('Erreur lors du chargement des données :', error)
+    toast.error('Erreur lors du chargement des données.')
+  }
 })
 
 const updateParcelType = async () => {
@@ -121,6 +128,7 @@ const cancel = () => {
   router.push('/parcel-types')
 }
 </script>
+
 
 <style scoped>
 .container {

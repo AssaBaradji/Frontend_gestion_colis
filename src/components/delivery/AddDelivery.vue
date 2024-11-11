@@ -1,5 +1,7 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
     <div class="p-5 bg-white rounded-4 shadow-lg form-container">
       <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
         Ajouter une Livraison
@@ -16,7 +18,7 @@
                 placeholder="Nom"
                 required
               />
-              <label for="nom">Nom</label>
+              <label for="nom"> <i class="fas fa-user me-2"></i> Nom </label>
             </div>
 
             <div class="form-floating mb-4">
@@ -28,7 +30,9 @@
                 placeholder="Prénom"
                 required
               />
-              <label for="prenom">Prénom</label>
+              <label for="prenom">
+                <i class="fas fa-user me-2"></i> Prénom
+              </label>
             </div>
 
             <div class="form-floating mb-4">
@@ -39,7 +43,9 @@
                 v-model="delivery.date_livraison"
                 required
               />
-              <label for="date_livraison">Date de Livraison</label>
+              <label for="date_livraison">
+                <i class="fas fa-calendar-alt me-2"></i> Date de Livraison
+              </label>
             </div>
           </div>
 
@@ -53,7 +59,9 @@
                 placeholder="Téléphone"
                 required
               />
-              <label for="telephone">Téléphone</label>
+              <label for="telephone">
+                <i class="fas fa-phone me-2"></i> Téléphone
+              </label>
             </div>
 
             <div class="form-floating mb-4">
@@ -63,12 +71,20 @@
                 v-model="delivery.expeditionId"
                 required
               >
-                <option value="" disabled selected>Choisissez une expédition</option>
-                <option v-for="expedition in expeditions" :key="expedition.id" :value="expedition.id">
+                <option value="" disabled selected>
+                  Choisissez une expédition
+                </option>
+                <option
+                  v-for="expedition in expeditions"
+                  :key="expedition.id"
+                  :value="expedition.id"
+                >
                   {{ expedition.nom_destinataire }}
                 </option>
               </select>
-              <label for="expeditionId">Expédition</label>
+              <label for="expeditionId">
+                <i class="fas fa-truck me-2"></i> Expédition
+              </label>
             </div>
 
             <div class="form-floating mb-4">
@@ -78,7 +94,7 @@
                 :value="authStore.utilisateurNom"
                 readonly
               />
-              <label>Utilisateur</label>
+              <label> <i class="fas fa-user me-2"></i> Utilisateur </label>
             </div>
           </div>
         </div>
@@ -146,11 +162,11 @@ const handleAddDelivery = async () => {
       toast.success('Livraison ajoutée avec succès !')
       router.push('/delivery')
     } else {
-      toast.error("Erreur lors de l'ajout de la livraison.")
+      toast.error('Cette expédition a déjà une livraison enregistrée .')
     }
   } catch (error) {
-    console.error("Erreur lors de l'ajout de la livraison :", error)
-    toast.error("Erreur lors de l'ajout de la livraison.")
+    console.error('Cette expédition a déjà une livraison enregistrée :', error)
+    toast.error('Cette expédition a déjà une livraison enregistrée.')
   }
 }
 

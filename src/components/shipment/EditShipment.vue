@@ -58,6 +58,24 @@
                 ><i class="fas fa-phone me-2"></i>Téléphone</label
               >
             </div>
+            <div class="form-floating mb-4">
+              <select
+                id="colisId"
+                class="form-select"
+                v-model="shipment.colisId"
+                required
+              >
+                <option value="" disabled selected>Choisissez un colis</option>
+                <option
+                  v-for="parcel in parcels"
+                  :key="parcel.id"
+                  :value="parcel.id"
+                >
+                  {{ parcel.code_colis }}
+                </option>
+              </select>
+              <label for="colisId"><i class="fas fa-box me-2"></i>Colis</label>
+            </div>
           </div>
 
           <div class="col-md-6">
@@ -88,29 +106,18 @@
                 d'expédition</label
               >
             </div>
-
             <div class="form-floating mb-4">
-              <select
-                id="colisId"
-                class="form-select"
-                v-model="shipment.colisId"
-                required
-              >
-                <option value="" disabled selected>Choisissez un colis</option>
-                <option
-                  v-for="parcel in parcels"
-                  :key="parcel.id"
-                  :value="parcel.id"
-                >
-                  {{ parcel.code_colis }}
-                </option>
-              </select>
-              <label for="colisId"><i class="fas fa-box me-2"></i>Colis</label>
+              <input
+                type="text"
+                class="form-control readonly-input"
+                :value="authStore.utilisateurNom"
+                readonly
+              />
+              <label> <i class="fas fa-user me-2"></i> Utilisateur </label>
             </div>
           </div>
         </div>
 
-        <!-- Buttons -->
         <div class="d-flex justify-content-between mt-4">
           <button
             class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
@@ -137,12 +144,14 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useShipmentStore } from '@/store/shipmentStore'
 import { useParcelStore } from '@/store/parcelStore'
+import { useAuthStore } from '@/store/authStore.js'
 import { useToast } from 'vue-toastification'
 
 const toast = useToast()
 const shipmentStore = useShipmentStore()
 const parcelStore = useParcelStore()
 const router = useRouter()
+const authStore = useAuthStore()
 const route = useRoute()
 
 const shipment = ref({})
@@ -223,6 +232,11 @@ const cancelEdit = () => {
 .form-select {
   border: 2px solid #ddd !important;
   transition: border-color 0.3s ease;
+}
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .form-control:focus,

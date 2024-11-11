@@ -19,7 +19,7 @@
                 required
               />
               <label for="montant">
-                <i class="fas fa-dollar-sign me-2"></i>Montant
+                <i class="fas fa-dollar-sign me-2"></i> Montant
               </label>
             </div>
 
@@ -35,7 +35,7 @@
                 <option value="départ">Départ</option>
               </select>
               <label for="moment_paiement">
-                <i class="fas fa-clock me-2"></i>Moment du Paiement
+                <i class="fas fa-clock me-2"></i> Moment du Paiement
               </label>
             </div>
 
@@ -48,7 +48,7 @@
                 required
               />
               <label for="date_paiement">
-                <i class="fas fa-calendar-alt me-2"></i>Date de Paiement
+                <i class="fas fa-calendar-alt me-2"></i> Date de Paiement
               </label>
             </div>
           </div>
@@ -62,12 +62,16 @@
                 required
               >
                 <option value="" disabled selected>Choisissez un colis</option>
-                <option v-for="parcel in parcels" :key="parcel.id" :value="parcel.id">
+                <option
+                  v-for="parcel in parcels"
+                  :key="parcel.id"
+                  :value="parcel.id"
+                >
                   {{ parcel.code_colis }}
                 </option>
               </select>
               <label for="colisId">
-                <i class="fas fa-box me-2"></i>Colis
+                <i class="fas fa-box me-2"></i> Colis
               </label>
             </div>
 
@@ -78,14 +82,31 @@
                 v-model="payment.methodeId"
                 required
               >
-                <option value="" disabled selected>Choisissez une méthode</option>
-                <option v-for="method in methods" :key="method.id" :value="method.id">
+                <option value="" disabled selected>
+                  Choisissez une méthode
+                </option>
+                <option
+                  v-for="method in methods"
+                  :key="method.id"
+                  :value="method.id"
+                >
                   {{ method.nom }}
                 </option>
               </select>
               <label for="methodeId">
-                <i class="fas fa-credit-card me-2"></i>Méthode de Paiement
+                <i class="fas fa-credit-card me-2"></i> Méthode de Paiement
               </label>
+            </div>
+
+            <!-- Champ Utilisateur -->
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                class="form-control readonly-input"
+                :value="authStore.utilisateurNom"
+                readonly
+              />
+              <label> <i class="fas fa-user me-2"></i> Utilisateur </label>
             </div>
           </div>
         </div>
@@ -115,6 +136,7 @@
 import { ref, onMounted } from 'vue'
 import { usePaymentStore } from '@/store/paymentStore.js'
 import { useParcelStore } from '@/store/parcelStore.js'
+import { useAuthStore } from '@/store/authStore.js'
 import { usePaymentMethodStore } from '@/store/paymentMethodStore.js'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -122,6 +144,7 @@ import { useToast } from 'vue-toastification'
 const paymentStore = usePaymentStore()
 const parcelStore = useParcelStore()
 const paymentMethodStore = usePaymentMethodStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const toast = useToast()
 
@@ -160,7 +183,7 @@ const addPayment = async () => {
 }
 
 const cancelPayment = () => {
-  toast.info("Ajout de paiement annulé.")
+  toast.info('Ajout de paiement annulé.')
   router.push('/payments')
 }
 </script>
@@ -200,6 +223,12 @@ const cancelPayment = () => {
 .form-select:focus {
   border-color: #3fb59e !important;
   box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .w-45 {

@@ -1,22 +1,40 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
     <div class="p-5 bg-white rounded-4 shadow-lg form-container">
       <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
         Ajouter une Méthode de Paiement
       </h3>
       <form @submit.prevent="addPaymentMethod">
-        <div class="form-floating mb-4">
-          <input
-            type="text"
-            id="nom"
-            class="form-control"
-            v-model="method.nom"
-            placeholder="Nom de la méthode de paiement"
-            required
-          />
-          <label for="nom">
-            <i class="fas fa-credit-card me-2"></i>Nom
-          </label>
+        <div class="row gx-5">
+          <div class="col-md-6">
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                id="nom"
+                class="form-control"
+                v-model="method.nom"
+                placeholder="Nom de la méthode de paiement"
+                required
+              />
+              <label for="nom">
+                <i class="fas fa-credit-card me-2"></i> Nom de la Méthode
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-floating mb-4">
+              <input
+                type="text"
+                class="form-control readonly-input"
+                :value="authStore.utilisateurNom"
+                readonly
+              />
+              <label> <i class="fas fa-user me-2"></i> Utilisateur </label>
+            </div>
+          </div>
         </div>
 
         <div class="d-flex justify-content-between mt-4">
@@ -71,7 +89,7 @@ const addPaymentMethod = async () => {
       await paymentMethodStore.fetchPaymentMethods()
       router.push('/payment-methods')
     } else {
-      toast.error("Erreur lors de l'ajout de la méthode de paiement.")
+      toast.error("Cette Methode de Paiement existe Déja.")
     }
   } catch (error) {
     console.error("Erreur lors de l'ajout de la méthode de paiement :", error)
@@ -80,7 +98,7 @@ const addPaymentMethod = async () => {
 }
 
 const cancelAdd = () => {
-  toast.info("Ajout de la méthode de paiement annulé.")
+  toast.info('Ajout de la méthode de paiement annulé.')
   router.push('/payment-methods')
 }
 </script>
@@ -120,7 +138,14 @@ const cancelAdd = () => {
   box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
 }
 
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
+}
+
 .w-45 {
   inline-size: 45%;
 }
 </style>
+

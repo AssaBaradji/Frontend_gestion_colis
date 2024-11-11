@@ -40,7 +40,7 @@ const { t } = useI18n()
   </div>
 
   <footer class="footer mt-5">
-    <p>&copy; 2024 Votre Nom ou Entreprise. Tous droits réservés.</p>
+    <p>&copy; 2024 SécurXpress. Tous droits réservés.</p>
   </footer>
 </template>
 

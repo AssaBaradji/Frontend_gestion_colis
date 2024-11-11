@@ -1,5 +1,7 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div
+    class="container d-flex justify-content-center align-items-center min-vh-100"
+  >
     <div class="p-5 bg-white rounded-4 shadow-lg form-container">
       <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
         Modifier la Livraison
@@ -16,9 +18,7 @@
                 placeholder="Nom"
                 required
               />
-              <label for="nom">
-                <i class="fas fa-user me-2"></i>Nom
-              </label>
+              <label for="nom"> <i class="fas fa-user me-2"></i>Nom </label>
             </div>
 
             <div class="form-floating mb-4">
@@ -71,7 +71,9 @@
                 v-model="delivery.expeditionId"
                 required
               >
-                <option value="" disabled selected>Choisissez une expédition</option>
+                <option value="" disabled selected>
+                  Choisissez une expédition
+                </option>
                 <option
                   v-for="expedition in expeditions"
                   :key="expedition.id"
@@ -88,15 +90,11 @@
             <div class="form-floating mb-4">
               <input
                 type="text"
-                id="utilisateur"
-                class="form-control"
+                class="form-control readonly-input"
                 :value="authStore.utilisateurNom"
-                placeholder="Utilisateur"
                 readonly
               />
-              <label for="utilisateur">
-                <i class="fas fa-user me-2"></i>Utilisateur
-              </label>
+              <label> <i class="fas fa-user me-2"></i> Utilisateur </label>
             </div>
           </div>
         </div>
@@ -205,6 +203,11 @@ const cancelEdit = () => {
 .form-select:focus {
   border-color: #3fb59e !important;
   box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .w-45 {

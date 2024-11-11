@@ -56,7 +56,7 @@ export const messages = {
       view_payments: 'Voir les Paiements',
     },
     app: {
-      title: 'Système de Gestion des Colis',
+      title: 'SécurXpress',
       nav: {
         users: 'Utilisateurs',
         shipments: 'Expéditions',

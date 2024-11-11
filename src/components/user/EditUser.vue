@@ -44,18 +44,29 @@
           </div>
 
           <div class="col-md-6">
-            <div class="form-floating mb-4">
+            <div class="form-floating mb-4 position-relative">
               <input
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 id="mot_de_passe"
                 class="form-control"
                 v-model="user.mot_de_passe"
                 placeholder="Mot de passe"
+                :class="{ 'is-invalid': passwordError || errors.mot_de_passe }"
+                @blur="validatePassword"
                 required
               />
               <label for="mot_de_passe">
                 <i class="fas fa-lock me-2"></i>Mot de passe
               </label>
+
+              <font-awesome-icon
+                :icon="showPassword ? 'eye-slash' : 'eye'"
+                class="eye-icon"
+                @click="togglePasswordVisibility"
+              />
+              <span v-if="passwordError" class="error-text">{{
+                passwordError
+              }}</span>
             </div>
 
             <div class="form-floating mb-4">
@@ -66,7 +77,7 @@
                 required
               >
                 <option value="" disabled selected>Choisissez un rôle</option>
-                <option value="Admis">Admis</option>
+                <option value="Admis">Admin</option>
                 <option value="Agent">Agent</option>
               </select>
               <label for="role">
@@ -86,7 +97,9 @@
             <option value="actif">Actif</option>
             <option value="bloqué">Bloqué</option>
           </select>
-          <label for="statut">Statut</label>
+          <label for="statut"
+            ><i class="fas fa-toggle-on me-2"></i>Statut</label
+          >
         </div>
 
         <div class="d-flex justify-content-between">
@@ -116,6 +129,27 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/userStore'
 import { useToast } from 'vue-toastification'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import {
+  faUser,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash,
+  faToggleOn,
+  faUserTag,
+} from '@fortawesome/free-solid-svg-icons'
+
+library.add(
+  faUser,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash,
+  faToggleOn,
+  faUserTag
+)
 
 const store = useUserStore()
 const router = useRouter()
@@ -123,9 +157,9 @@ const route = useRoute()
 const toast = useToast()
 const user = ref({})
 const isLoading = ref(true)
-
 const primaryColor = '#3fb59e'
 const textColor = '#FFFFFF'
+const showPassword = ref(false)
 
 const loadUser = async () => {
   try {
@@ -175,8 +209,23 @@ const updateUser = async () => {
   }
 }
 
+const errors = ref({})
+const passwordError = ref('')
+
+const validatePassword = () => {
+  if (user.value.mot_de_passe.length < 6) {
+    passwordError.value = 'Le mot de passe doit contenir au moins 6 caractères.'
+  } else {
+    passwordError.value = ''
+  }
+}
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value
+}
+
 const cancelEdit = () => {
-  toast.info('cancel-edit-user')
+  toast.info('Modification annulée')
   router.push('/users')
 }
 </script>
@@ -220,5 +269,24 @@ const cancelEdit = () => {
 
 .w-45 {
   inline-size: 45%;
+}
+
+.eye-icon {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 15px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.eye-icon:hover {
+  color: #333;
+}
+
+.error-text {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-block-start: 4px;
 }
 </style>

@@ -55,7 +55,11 @@
           <td>{{ delivery.date_livraison }}</td>
           <td>{{ delivery.telephone }}</td>
           <td>{{ delivery.utilisateur ? delivery.utilisateur.nom : 'N/A' }}</td>
-          <td>{{ delivery.expedition ? delivery.expedition.nom_destinataire : 'N/A' }}</td>
+          <td>
+            {{
+              delivery.expedition ? delivery.expedition.nom_destinataire : 'N/A'
+            }}
+          </td>
           <td class="text-center">
             <router-link
               :to="'/delivery/show/' + delivery.id"
@@ -107,8 +111,12 @@ onMounted(async () => {
 
     deliveries.value = deliveryStore.deliveries.map(delivery => ({
       ...delivery,
-      utilisateur: userStore.users.find(user => user.id === delivery.utilisateurId),
-      expedition: shipmentStore.shipments.find(shipment => shipment.id === delivery.expeditionId),
+      utilisateur: userStore.users.find(
+        user => user.id === delivery.utilisateurId
+      ),
+      expedition: shipmentStore.shipments.find(
+        shipment => shipment.id === delivery.expeditionId
+      ),
     }))
   } catch (error) {
     console.error('Erreur lors du chargement des données :', error)
@@ -121,15 +129,25 @@ onMounted(async () => {
 const filteredDeliveries = computed(() =>
   deliveries.value.filter(
     delivery =>
-      (delivery.nom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (delivery.prenom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (delivery.utilisateur?.nom || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (delivery.expedition?.nom_destinataire || '').toLowerCase().includes(searchQuery.value.toLowerCase())
+      (delivery.nom || '')
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (delivery.prenom || '')
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (delivery.utilisateur?.nom || '')
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (delivery.expedition?.nom_destinataire || '')
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
   )
 )
 
 const confirmDelete = async id => {
-  const confirmation = confirm("Voulez-vous vraiment supprimer cette livraison ?")
+  const confirmation = confirm(
+    'Voulez-vous vraiment supprimer cette livraison ?'
+  )
   if (confirmation) {
     await deleteDelivery(id)
   }
@@ -139,7 +157,8 @@ const deleteDelivery = async id => {
   try {
     await deliveryStore.deleteDelivery(id)
     toast.success('Livraison supprimée avec succès.')
-    await deliveryStore.fetchDeliveries()
+
+    deliveries.value = deliveries.value.filter(delivery => delivery.id !== id)
   } catch (error) {
     console.error('Erreur lors de la suppression de la livraison :', error)
     toast.error('Erreur lors de la suppression de la livraison.')

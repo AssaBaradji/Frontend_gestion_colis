@@ -32,7 +32,7 @@
             <router-link
               to="/users"
               class="btn btn-outline-light me-2 font-weight-bold"
-              :class="{ active: activeRoute.value === '/users' }"
+              :class="{ active: isActiveRoute('/users') }"
               @click="setActiveRoute('/users')"
             >
               <font-awesome-icon icon="user" class="me-2" />
@@ -45,8 +45,7 @@
               type="button"
               :class="{
                 active:
-                  activeRoute.value === '/parcels' ||
-                  activeRoute.value === '/parcel-types',
+                  isActiveRoute('/parcels') || isActiveRoute('/parcel-types'),
               }"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -56,24 +55,26 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <button
+                <router-link
+                  to="/parcels"
                   class="dropdown-item"
-                  :class="{ active: activeRoute.value === '/parcels' }"
+                  :class="{ active: isActiveRoute('/parcels') }"
                   @click="setActiveRoute('/parcels')"
                 >
                   <font-awesome-icon icon="box" class="me-2" />
                   {{ $t('app.nav.packages') }}
-                </button>
+                </router-link>
               </li>
               <li>
-                <button
+                <router-link
+                  to="/parcel-types"
                   class="dropdown-item"
-                  :class="{ active: activeRoute.value === '/parcel-types' }"
+                  :class="{ active: isActiveRoute('/parcel-types') }"
                   @click="setActiveRoute('/parcel-types')"
                 >
                   <font-awesome-icon icon="tags" class="me-2" />
                   {{ $t('app.nav.packageTypes') }}
-                </button>
+                </router-link>
               </li>
             </ul>
           </li>
@@ -81,7 +82,7 @@
           <li class="nav-item">
             <button
               class="btn btn-outline-light me-2 font-weight-bold"
-              :class="{ active: activeRoute.value === '/shipments' }"
+              :class="{ active: isActiveRoute('/shipments') }"
               @click="setActiveRoute('/shipments')"
             >
               <font-awesome-icon icon="truck" class="me-2" />
@@ -94,8 +95,8 @@
               type="button"
               :class="{
                 active:
-                  activeRoute.value === '/payments' ||
-                  activeRoute.value === '/payment-methods',
+                  isActiveRoute('/payments') ||
+                  isActiveRoute('/payment-methods'),
               }"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -105,24 +106,26 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <button
+                <router-link
+                  to="/payments"
                   class="dropdown-item"
-                  :class="{ active: activeRoute.value === '/payments' }"
+                  :class="{ active: isActiveRoute('/payments') }"
                   @click="setActiveRoute('/payments')"
                 >
                   <font-awesome-icon icon="money-bill-wave" class="me-2" />
                   {{ $t('app.nav.payments') }}
-                </button>
+                </router-link>
               </li>
               <li>
-                <button
+                <router-link
+                  to="/payment-methods"
                   class="dropdown-item"
-                  :class="{ active: activeRoute.value === '/payment-methods' }"
+                  :class="{ active: isActiveRoute('/payment-methods') }"
                   @click="setActiveRoute('/payment-methods')"
                 >
                   <font-awesome-icon icon="wallet" class="me-2" />
                   {{ $t('app.nav.paymentMethods') }}
-                </button>
+                </router-link>
               </li>
             </ul>
           </li>
@@ -130,7 +133,7 @@
           <li class="nav-item">
             <button
               class="btn btn-outline-light me-2 font-weight-bold"
-              :class="{ active: activeRoute.value === '/delivery' }"
+              :class="{ active: isActiveRoute('/delivery') }"
               @click="setActiveRoute('/delivery')"
             >
               <font-awesome-icon icon="envelope" class="me-2" />
@@ -169,10 +172,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/store/authStore.js' 
+import { useAuthStore } from '@/store/authStore.js'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
@@ -186,7 +189,7 @@ import {
   faMoneyBillWave,
   faWallet,
   faEnvelope,
-  faHome
+  faHome,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -205,18 +208,34 @@ library.add(
 
 const router = useRouter()
 const route = useRoute()
-const activeRoute = ref(route.path)
+const activeRoute = ref(getBasePath(route.path))
 
 const authStore = useAuthStore()
 const isAuthenticated = authStore.isAuthenticated
 
-const setActiveRoute = (path) => {
-  activeRoute.value = path
+function getBasePath(path) {
+  const segments = path.split('/')
+  return segments.length > 1 ? `/${segments[1]}` : path
+}
+
+const isActiveRoute = base => {
+  return activeRoute.value === base
+}
+
+const setActiveRoute = path => {
+  activeRoute.value = getBasePath(path)
   router.push(path)
 }
 
+watch(
+  () => route.path,
+  newPath => {
+    activeRoute.value = getBasePath(newPath)
+  }
+)
+
 const { locale } = useI18n()
-const changeLanguage = (event) => {
+const changeLanguage = event => {
   locale.value = event.target.value
 }
 
@@ -261,5 +280,10 @@ const handleLogout = () => {
 .navbar .form-select:focus {
   border-color: white;
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.active {
+  color: #3fb59e;
+  font-weight: bold;
 }
 </style>

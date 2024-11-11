@@ -16,9 +16,11 @@
                 class="form-control"
                 v-model="user.nom"
                 placeholder="Nom"
+                :class="{ 'is-invalid': errors.nom }"
                 required
               />
-              <label for="nom">Nom</label>
+              <label for="nom"> <i class="fas fa-user me-2"></i>Nom </label>
+              <span v-if="errors.nom" class="error-text">{{ errors.nom }}</span>
             </div>
           </div>
 
@@ -30,29 +32,46 @@
                 class="form-control"
                 v-model="user.email"
                 placeholder="Email"
+                :class="{ 'is-invalid': errors.email }"
                 required
               />
-              <label for="email">Email</label>
+              <label for="email">
+                <i class="fas fa-envelope me-2"></i>Email
+              </label>
+              <span v-if="errors.email" class="error-text">{{
+                errors.email
+              }}</span>
             </div>
           </div>
         </div>
 
         <div class="row gx-5">
           <div class="col-md-6">
-            <div class="form-floating mb-4">
+            <div class="form-floating mb-4 position-relative">
               <input
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 id="mot_de_passe"
                 class="form-control"
                 v-model="user.mot_de_passe"
                 placeholder="Mot de passe"
-                :class="{ 'is-invalid': passwordError }"
+                :class="{ 'is-invalid': passwordError || errors.mot_de_passe }"
                 @blur="validatePassword"
                 required
               />
-              <label for="mot_de_passe">Mot de Passe</label>
+              <label for="mot_de_passe">
+                <i class="fas fa-lock me-2"></i>Mot de Passe
+              </label>
+
+              <font-awesome-icon
+                :icon="showPassword ? 'eye-slash' : 'eye'"
+                class="eye-icon"
+                @click="togglePasswordVisibility"
+              />
               <span v-if="passwordError" class="error-text">{{
                 passwordError
+              }}</span>
+              <span v-if="errors.mot_de_passe" class="error-text">{{
+                errors.mot_de_passe
               }}</span>
             </div>
           </div>
@@ -63,13 +82,19 @@
                 id="role"
                 class="form-select"
                 v-model="user.role"
+                :class="{ 'is-invalid': errors.role }"
                 required
               >
                 <option value="" disabled selected>Choisissez un rôle</option>
-                <option value="Admis">Admis</option>
+                <option value="Admin">Admin</option>
                 <option value="Agent">Agent</option>
               </select>
-              <label for="role">Rôle</label>
+              <label for="role">
+                <i class="fas fa-user-tag me-2"></i>Rôle
+              </label>
+              <span v-if="errors.role" class="error-text">{{
+                errors.role
+              }}</span>
             </div>
           </div>
         </div>
@@ -79,19 +104,25 @@
             id="statut"
             class="form-select"
             v-model="user.statut"
+            :class="{ 'is-invalid': errors.statut }"
             required
           >
             <option value="actif">Actif</option>
             <option value="bloqué">Bloqué</option>
           </select>
-          <label for="statut">Statut</label>
+          <label for="statut">
+            <i class="fas fa-toggle-on me-2"></i>Statut
+          </label>
+          <span v-if="errors.statut" class="error-text">{{
+            errors.statut
+          }}</span>
         </div>
 
         <div class="d-flex justify-content-between">
           <button
             type="button"
             class="btn btn-outline-secondary fw-bold w-45 shadow-sm"
-            @click="cancelAdd "
+            @click="cancelAdd"
           >
             Annuler
           </button>
@@ -100,7 +131,7 @@
             class="btn w-45 py-2 fw-bold shadow-sm"
             style="background-color: #3fb59e; color: white"
           >
-            Ajouter Utilisateur
+            <i class="fas fa-save me-2"></i>Ajouter Utilisateur
           </button>
         </div>
       </form>
@@ -113,6 +144,27 @@ import { ref } from 'vue'
 import { useUserStore } from '@/store/userStore'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import {
+  faUser,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash,
+  faToggleOn,
+  faUserTag,
+} from '@fortawesome/free-solid-svg-icons'
+
+library.add(
+  faUser,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash,
+  faToggleOn,
+  faUserTag
+)
 
 const store = useUserStore()
 const router = useRouter()
@@ -126,7 +178,9 @@ const user = ref({
   statut: 'actif',
 })
 
+const errors = ref({})
 const passwordError = ref('')
+const showPassword = ref(false)
 
 const validatePassword = () => {
   if (user.value.mot_de_passe.length < 6) {
@@ -153,16 +207,27 @@ const addUser = async () => {
     router.push('/users')
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'utilisateur :", error)
-    if (!toast.isActive('error-add-user')) {
+
+    if (error.response && error.response.data.errors) {
+      errors.value = error.response.data.errors.reduce((acc, err) => {
+        acc[err.param] = err.msg
+        return acc
+      }, {})
+    } else if (!toast.isActive('error-add-user')) {
       toast.error("Erreur lors de l'ajout de l'utilisateur.", {
         id: 'error-add-user',
       })
     }
   }
 }
+
 const cancelAdd = () => {
-  toast.info('cancel-add-user')
+  toast.info("Ajout d'utilisateur annulé.")
   router.push('/users')
+}
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value
 }
 </script>
 
@@ -205,6 +270,19 @@ const cancelAdd = () => {
 
 .w-45 {
   inline-size: 45%;
+}
+
+.eye-icon {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 15px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.eye-icon:hover {
+  color: #333;
 }
 
 .error-text {
