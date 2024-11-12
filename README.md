@@ -61,8 +61,8 @@ Ce projet est le frontend d'une mise en place d'une application web de suivi des
 1. Clonez le dépôt.
 
 ```bash
-    git clone https://github.com/AssaBaradji/Gestion_des_expeditions_colis.git
-    cd projet-frontend
+    git clone https://github.com/AssaBaradji/Frontend_gestion_colis.git
+    cd Frontend_gestion_colis
 ```
 
 2.Installez les dépendances.
