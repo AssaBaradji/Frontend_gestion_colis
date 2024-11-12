@@ -87,7 +87,7 @@ Lancez le serveur de développement :
 npm run dev
 ```
 
-Accédez au frontend à `http://localhost:1573`.
+Accédez au frontend à `http://localhost:5173`.
 
 ## Structure du projet
 
