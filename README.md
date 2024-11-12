@@ -93,5 +93,5 @@ Accédez au frontend à `http://localhost:1573`.
 
 - **components** : Composants Vue réutilisables (ex. pour les formulaires d’ajout et de modification).
 - **views** : Pages principales de l'application (expéditions, paiements, utilisateurs, etc.).
-- **store** : Gestion de l'état (Pinia ou Vuex).
+- **store** : Gestion de l'état (Pinia).
 - **router** : Définit les routes de navigation.
