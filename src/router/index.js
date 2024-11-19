@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/store/authStore.js'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import AddUser from '@/components/user/AddUser.vue'
@@ -41,11 +40,6 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
   {
-    path: '/forbidden',
-    name: 'Forbidden',
-    component: () => import('@/views/Forbidden.vue'),
-  },
-  {
     path: '/Bloque',
     name: 'Bloque',
     component: () => import('@/views/Bloque.vue'),
@@ -74,14 +68,14 @@ const routes = [
     path: '/users/add',
     name: 'AddUser',
     component: AddUser,
-    meta: { requiresAuth: true, requiresRole: ['Admin'] },
+    meta: { requiresAuth: true },
   },
   {
     path: '/users/edit/:id',
     name: 'EditUser',
     component: EditUser,
     props: true,
-    meta: { requiresAuth: true, requiresRole: ['Admin'] },
+    meta: { requiresAuth: true },
   },
   {
     path: '/users/show/:id',
@@ -254,27 +248,4 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
-
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    console.log('Non authentifié : redirection vers Login')
-    return next({ name: 'Login' })
-  }
-
-  if (to.meta.requiresRole) {
-    const userRole = authStore.userRole
-    console.log('Rôle utilisateur actuel :', userRole)
-    console.log('Rôles requis pour cette route :', to.meta.requiresRole)
-
-    if (!to.meta.requiresRole.includes(userRole)) {
-      console.log(
-        `Accès refusé : rôle ${userRole} non autorisé pour cette route`,
-      )
-      return next({ name: 'Forbidden' })
-    }
-  }
-
-  next()
-})
 export default router

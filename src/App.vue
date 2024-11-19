@@ -28,7 +28,7 @@
 
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
+          <li class="nav-item" v-if="userNewObject === 'Admin'">
             <router-link
               to="/users"
               class="btn btn-outline-light me-2 font-weight-bold"
@@ -172,7 +172,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/store/authStore.js'
@@ -209,6 +209,7 @@ library.add(
 const router = useRouter()
 const route = useRoute()
 const activeRoute = ref(getBasePath(route.path))
+const userNewObject = computed(() => localStorage.getItem('userNewObject'))
 
 const authStore = useAuthStore()
 const isAuthenticated = authStore.isAuthenticated

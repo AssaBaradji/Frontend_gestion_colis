@@ -45,7 +45,7 @@
       </div>
 
       <button class="btn btn-primary" @click="handleLogin">Se connecter</button>
-      <p class="forgot-password">Mot de passe oublié ?</p>
+      <p class="forgot-password" @click="openForgotPassword">Mot de passe oublié ?</p>
     </div>
   </div>
 </template>
@@ -85,6 +85,22 @@ const handleLogin = async () => {
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
+const openForgotPassword = async () => {
+  if (!email.value) {
+    alert("Veuillez entrer votre email pour recevoir un lien de réinitialisation.");
+    return;
+  }
+  try {
+    await fetch("http://localhost:3000/api/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.value }),
+    });
+    alert("Un email de réinitialisation a été envoyé !");
+  } catch (error) {
+    alert("Erreur lors de l'envoi. Veuillez réessayer.");
+  }
+};
 </script>
 
 <style scoped>
@@ -198,6 +214,7 @@ const togglePasswordVisibility = () => {
   font-size: 0.9rem;
   color: #6c757d;
   margin-block-start: 10px;
+  cursor: pointer;
 }
 
 .signup-link {

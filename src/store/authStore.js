@@ -55,11 +55,11 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = response.data.token
         refreshToken.value = response.data.refreshToken
         isAuthenticated.value = true
+        localStorage.setItem('userNewObject', response.data.utilisateur.role)
         localStorage.setItem('token', token.value)
         localStorage.setItem('refreshToken', refreshToken.value)
         await fetchUserProfile()
         router.push({ name: 'Home' })
-        console.log('userRole', userObject.value)
       }
     } catch (error) {
       console.error("Erreur lors de l'authentification :", error)
