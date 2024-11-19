@@ -62,7 +62,7 @@
                 <input
                   type="text"
                   class="form-control"
-                  :value="user.statut === 'actif' ? 'Actif' : 'Bloqué'"
+                  :value="user.statut === 'Actif' ? 'Actif' : 'Bloqué'"
                   readonly
                 />
               </div>

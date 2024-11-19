@@ -42,4 +42,5 @@ const goBack = () => {
   router.push('/payment-methods')
 }
 </script>
+
   

@@ -48,15 +48,15 @@
           <td>{{ user.email }}</td>
           <td>{{ user.role }}</td>
 
-          <td>
-            {{
-              typeof user.statut === 'string'
-                ? user.statut
-                : user.statut
-                ? 'Actif'
-                : 'Bloqué'
-            }}
+          <td class="text-center">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              :checked="user.statut === 'Actif'"
+              disabled
+            />
           </td>
+
           <td class="text-center">
             <router-link
               :to="'/users/show/' + user.id"
@@ -82,8 +82,8 @@
     </table>
   </div>
 </template>
-  
-  <script setup>
+
+<script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '@/store/userStore'
 import { useToast } from 'vue-toastification'
@@ -109,6 +109,7 @@ const deleteUser = async id => {
   console.log("ID de l'utilisateur à supprimer :", id)
   try {
     await store.deleteUser(id)
+    toast.success('Utilisateur supprimé avec succès.')
     await store.fetchUsers()
   } catch (error) {
     console.error("Erreur lors de la suppression de l'utilisateur :", error)
@@ -116,10 +117,10 @@ const deleteUser = async id => {
   }
 }
 </script>
-  
-  <style scoped>
+
+<style scoped>
 .text-primary {
-  color: #0d6efd;
+  color: #0d6efd !important;
 }
 .btn- {
   background-color: #3fb59e;
@@ -143,5 +144,8 @@ const deleteUser = async id => {
 .search-icon {
   background-color: #e0e0e0;
 }
+.form-check-input {
+  accent-color: #3fb59e;
+  border: 1px solid black;
+}
 </style>
-   

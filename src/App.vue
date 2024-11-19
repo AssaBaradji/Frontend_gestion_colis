@@ -7,8 +7,8 @@
     <nav class="container">
       <router-link
         class="navbar-brand d-flex align-items-center text-light"
-        @click="setActiveRoute('/')"
-        to="/"
+        @click="setActiveRoute('/home')"
+        to="/home"
       >
         <font-awesome-icon icon="home" class="me-2" />
         {{ $t('app.title') }}
@@ -158,7 +158,7 @@
               @click="setActiveRoute('/login')"
             >
               <font-awesome-icon icon="sign-in-alt" class="me-2" />
-              Connexion
+              Déconnexion
             </router-link>
           </li>
         </ul>
