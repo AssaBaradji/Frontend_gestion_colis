@@ -53,12 +53,15 @@ export const useAuthStore = defineStore('auth', () => {
         router.push('/Bloque')
       } else {
         token.value = response.data.token
+        localStorage.setItem('token', token.value)
+        console.log('login token', token.value)
         refreshToken.value = response.data.refreshToken
         isAuthenticated.value = true
         localStorage.setItem('userNewObject', response.data.utilisateur.role)
-        localStorage.setItem('token', token.value)
         localStorage.setItem('refreshToken', refreshToken.value)
-        await fetchUserProfile()
+        if (response.data.utilisateur.role === 'Admin') {
+          await fetchUserProfile()
+        }
         router.push({ name: 'Home' })
       }
     } catch (error) {
@@ -106,6 +109,35 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('refreshToken')
     router.push({ name: 'Login' })
   }
+  const forgotPassword = async email => {
+    try {
+      await axios.post('http://localhost:3000/api/forgot-password', { email })
+      console.log('Email de réinitialisation envoyé avec succès.')
+    } catch (error) {
+      console.error('Erreur lors de la demande de réinitialisation :', error)
+      throw new Error(
+        "Impossible d'envoyer l'email de réinitialisation. Veuillez réessayer.",
+      )
+    }
+  }
+
+  const resetPassword = async (token, newPassword) => {
+    try {
+      await axios.post('http://localhost:3000/api/reset-password', {
+        token,
+        newPassword,
+      })
+      console.log('Mot de passe réinitialisé avec succès.')
+    } catch (error) {
+      console.error(
+        'Erreur lors de la réinitialisation du mot de passe :',
+        error,
+      )
+      throw new Error(
+        'Impossible de réinitialiser le mot de passe. Veuillez réessayer.',
+      )
+    }
+  }
 
   return {
     currentUser,
@@ -115,5 +147,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     fetchUserProfile,
+    resetPassword,
+    forgotPassword,
   }
 })

@@ -1,3 +1,5 @@
+import ResetPassword from '@/views/ResetPassword.vue'
+import ForgotPassword from '@/views/ForgotPassword.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
@@ -36,6 +38,7 @@ import AddDelivery from '@/components/delivery/AddDelivery.vue'
 import EditDelivery from '@/components/delivery/EditDelivery.vue'
 import ShowDelivery from '@/components/delivery/ShowDelivery.vue'
 
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
@@ -43,6 +46,16 @@ const routes = [
     path: '/Bloque',
     name: 'Bloque',
     component: () => import('@/views/Bloque.vue'),
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword,
+  },
+  {
+    path: '/reset-password/:token',
+    name: 'ResetPassword',
+    component: ResetPassword,
   },
 
   {

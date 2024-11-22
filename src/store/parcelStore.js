@@ -11,11 +11,12 @@ export const useParcelStore = defineStore('parcelStore', () => {
 
   const fetchParcels = async () => {
     loading.value = true
+    console.log('token valide', auth.token)
     try {
       const response = await axios.get('http://localhost:3000/colis', {
         headers: {
-          Authorization: authToken
-        }
+          Authorization: authToken,
+        },
       })
       parcels.value = response.data
       console.log('Colis chargés :', parcels.value)
@@ -30,15 +31,11 @@ export const useParcelStore = defineStore('parcelStore', () => {
 
   const addParcel = async parcel => {
     try {
-      const response = await axios.post(
-        'http://localhost:3000/colis',
-        parcel,
-        {
-          headers: {
-            Authorization: authToken
-          }
-        }
-      )
+      const response = await axios.post('http://localhost:3000/colis', parcel, {
+        headers: {
+          Authorization: authToken,
+        },
+      })
       parcels.value.push(response.data)
       return { success: true }
     } catch (error) {
@@ -54,11 +51,13 @@ export const useParcelStore = defineStore('parcelStore', () => {
         updatedParcel,
         {
           headers: {
-            Authorization: authToken
-          }
-        }
+            Authorization: authToken,
+          },
+        },
       )
-      const index = parcels.value.findIndex(parcel => parcel.id === updatedParcel.id)
+      const index = parcels.value.findIndex(
+        parcel => parcel.id === updatedParcel.id,
+      )
       if (index !== -1) {
         parcels.value[index] = response.data
         console.log('Colis modifié :', response.data)
@@ -66,7 +65,7 @@ export const useParcelStore = defineStore('parcelStore', () => {
       }
       return { success: false, error: 'Colis non trouvé' }
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du colis :", error)
+      console.error('Erreur lors de la mise à jour du colis :', error)
       return { success: false, error }
     }
   }
@@ -75,14 +74,14 @@ export const useParcelStore = defineStore('parcelStore', () => {
     try {
       await axios.delete(`http://localhost:3000/colis/${id}`, {
         headers: {
-          Authorization: authToken
-        }
+          Authorization: authToken,
+        },
       })
       parcels.value = parcels.value.filter(parcel => parcel.id !== id)
       console.log('Colis supprimé :', id)
       return { success: true }
     } catch (error) {
-      console.error("Erreur lors de la suppression du colis :", error)
+      console.error('Erreur lors de la suppression du colis :', error)
       return { success: false, error }
     }
   }
@@ -101,4 +100,3 @@ export const useParcelStore = defineStore('parcelStore', () => {
     parcelById,
   }
 })
-
