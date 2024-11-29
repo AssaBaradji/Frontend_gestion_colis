@@ -84,11 +84,10 @@ export const useShipmentStore = defineStore('shipmentStore', () => {
       console.log('Expédition supprimée :', id)
       return { success: true }
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'expédition :", error)
+      console.error("Erreur lors de la suppression de l'expédition :", error.response?.data || error.message)
       return { success: false, error: error.response?.data || error.message }
     }
   }
-
   const shipmentById = id => {
     return shipments.value.find(shipment => shipment.id === parseInt(id))
   }

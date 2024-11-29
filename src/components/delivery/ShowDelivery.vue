@@ -33,6 +33,15 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
+                    <label class="form-label">ID :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="delivery.id"
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-3">
                     <label class="form-label">Nom :</label>
                     <input
                       type="text"
@@ -55,7 +64,9 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="delivery.date_livraison"
+                      :value="
+                        new Date(delivery.date_livraison).toLocaleDateString()
+                      "
                       readonly
                     />
                   </div>
@@ -68,9 +79,19 @@
                       class="form-control"
                       :value="
                         delivery.expedition
-                          ? delivery.expedition.nom_destinataire
+                          ? delivery.expedition.colis.code_colis
                           : 'N/A'
                       "
+                      readonly
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Téléphone :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="delivery.telephone"
                       readonly
                     />
                   </div>
@@ -82,15 +103,6 @@
                       :value="
                         delivery.utilisateur ? delivery.utilisateur.nom : 'N/A'
                       "
-                      readonly
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Téléphone :</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :value="delivery.telephone"
                       readonly
                     />
                   </div>

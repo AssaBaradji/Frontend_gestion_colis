@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container d-flex justify-content-center align-items-center min-vh-100"
+    class="container d-flex justify-content-center align-items-center min-vh-75"
   >
     <div v-if="isLoading" class="text-center">
       <i
@@ -37,6 +37,7 @@
                 class="form-control"
                 v-model="parcel.prix"
                 placeholder="Prix"
+                @input="validatePrix"
                 step="0.01"
                 required
               />
@@ -196,8 +197,18 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+const validatePrix = () => {
+  if (parcel.value.prix < 0) {
+    parcel.value.prix = 0
+    toast.error('Le prix ne peut pas être négatif.')
+  }
+}
 
 const updateParcel = async () => {
+  if (parcel.value.prix <= 0) {
+    toast.error('Le prix doit être supérieur à 0.')
+    return
+  }
   try {
     await parcelStore.updateParcel(parcel.value)
     toast.success('Colis mis à jour avec succès !')
@@ -216,33 +227,28 @@ const cancelEdit = () => {
   
   <style scoped>
 .container {
-  min-block-size: 100vh;
+  min-block-size: 90vh;
 }
 
 .form-container {
-  max-inline-size: 900px;
+  max-inline-size: 850px;
   background-color: #fff;
-  padding: 3rem 2rem;
+  padding: 3rem 2.5rem;
   border-radius: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-floating label {
   color: #6c757d;
-}
-
-.btn {
-  transition: all 0.3s ease;
-}
-
-.btn:hover {
-  background-color: #36a290;
+  font-size: 1rem;
 }
 
 .form-control,
 .form-select {
   border: 2px solid #ddd !important;
   transition: border-color 0.3s ease;
+  padding: 1.5rem;
+  font-size: 1.1rem;
 }
 
 .form-control:focus,
@@ -257,9 +263,12 @@ const cancelEdit = () => {
   font-weight: bold;
 }
 
-.form-floating .readonly-input:focus {
-  border-color: #ddd !important;
-  box-shadow: none;
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #36a290;
 }
 
 .w-45 {

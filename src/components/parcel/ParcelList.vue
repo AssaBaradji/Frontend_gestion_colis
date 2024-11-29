@@ -26,14 +26,27 @@
       </router-link>
     </div>
 
-    <div v-if="filteredParcels.length === 0" class="text-center">
+    <div v-if="paginatedParcels.length === 0" class="text-center">
       <p>Aucun colis trouvé.</p>
     </div>
 
     <table v-else class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th scope="col">ID Colis</th>
+          <th
+            scope="col"
+            @click="toggleSortOrder('id')"
+            style="cursor: pointer"
+          >
+            ID Colis
+            <span v-if="sortBy === 'id'">
+              <i
+                :class="
+                  sortOrder === 'asc' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'
+                "
+              ></i>
+            </span>
+          </th>
           <th scope="col">Code Colis</th>
           <th scope="col">Prix</th>
           <th scope="col">Date Enregistrement</th>
@@ -45,11 +58,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="parcel in filteredParcels" :key="parcel.id">
+        <tr v-for="parcel in paginatedParcels" :key="parcel.id">
           <td>{{ parcel.id }}</td>
           <td>{{ parcel.code_colis }}</td>
           <td>{{ parcel.prix }}</td>
-          <td>{{ parcel.date_enregistrement }}</td>
+          <td>
+            {{ new Date(parcel.date_enregistrement).toLocaleDateString() }}
+          </td>
           <td>{{ parcel.emplacement_colis }}</td>
           <td>{{ parcel.description }}</td>
           <td>
@@ -79,6 +94,24 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="d-flex justify-content-center mt-4">
+      <button
+        class="btn btn-outline-secondary"
+        :disabled="currentPage === 1"
+        @click="prevPage"
+      >
+        <i class="fas fa-chevron-left"></i> Précédent
+      </button>
+      <span class="mx-3">Page {{ currentPage }} sur {{ totalPages }}</span>
+      <button
+        class="btn btn-outline-secondary"
+        :disabled="currentPage === totalPages"
+        @click="nextPage"
+      >
+        Suivant <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </template>
   
@@ -95,9 +128,13 @@ const typeStore = useTypeColisStore()
 const userStore = useUserStore()
 
 const parcels = ref([])
-const types = ref([])
-const users = ref([])
 const searchQuery = ref('')
+
+const sortBy = ref('id')
+const sortOrder = ref('asc')
+
+const currentPage = ref(1)
+const itemsPerPage = 5
 
 const fetchAndMapParcels = async () => {
   try {
@@ -120,12 +157,27 @@ const fetchAndMapParcels = async () => {
 
 onMounted(fetchAndMapParcels)
 
-const selectedType = ref('')
+const toggleSortOrder = field => {
+  if (sortBy.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortBy.value = field
+    sortOrder.value = 'asc'
+  }
+}
+
+const sortedParcels = computed(() => {
+  return [...filteredParcels.value].sort((a, b) => {
+    if (a[sortBy.value] < b[sortBy.value])
+      return sortOrder.value === 'asc' ? -1 : 1
+    if (a[sortBy.value] > b[sortBy.value])
+      return sortOrder.value === 'asc' ? 1 : -1
+    return 0
+  })
+})
+
 const filteredParcels = computed(() =>
   parcels.value.filter(parcel => {
-    const matchesType = selectedType.value
-      ? parcel.type && parcel.type.id === selectedType.value
-      : true
     const matchesSearch = searchQuery.value
       ? parcel.code_colis
           .toLowerCase()
@@ -134,17 +186,40 @@ const filteredParcels = computed(() =>
           .toLowerCase()
           .includes(searchQuery.value.toLowerCase())
       : true
-    return matchesType && matchesSearch
+    return matchesSearch
   })
 )
+
+const paginatedParcels = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  return sortedParcels.value.slice(startIndex, endIndex)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(sortedParcels.value.length / itemsPerPage)
+})
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+
 const deleteParcel = async id => {
-  const result = await store.deleteParcel(id)
-  if (result.success) {
-    toast.success('Colis supprimé avec succès.')
-    await fetchAndMapParcels()
+  if (confirm('etes vous sur de vouloir supprimé ce colis ?')) {
+    const result = await store.deleteParcel(id)
+    if (result.success) {
+      toast.success('Colis supprimé avec succès.')
+      await fetchAndMapParcels()
+    } else {
+      console.error('Erreur lors de la suppression du colis')
+      toast.error(`impossible de supprimé colis déja expédié`)
+    }
   } else {
-    console.error('Erreur lors de la suppression du colis')
-    toast.error(`Erreur lors de la suppression du colis`)
+    toast.warning('Suppression Annulé!')
   }
 }
 </script>

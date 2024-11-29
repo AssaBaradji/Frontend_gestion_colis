@@ -1,5 +1,5 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="container d-flex justify-content-center align-items-center min-vh-75">
     <div class="p-5 bg-white rounded-4 shadow-lg form-container">
       <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
         Modifier le Type de Colis
@@ -75,7 +75,7 @@ const router = useRouter()
 const route = useRoute()
 const toast = useToast()
 
-// Initialisation du type de colis avec une valeur par défaut pour éviter les erreurs d'accès aux valeurs nulles
+
 const type = ref({
   nom: '',
   utilisateurId: authStore.currentUser?.id || null,
@@ -83,7 +83,7 @@ const type = ref({
 const loadedUser = ref({})
 const connectedUser = ref(authStore.currentUser || {})
 
-// Fonction de chargement des informations sur le type de colis
+
 const loadTypeColis = async () => {
   const id = route.params.id
   const existingType = store.typeColisById(id)
@@ -97,7 +97,7 @@ const loadTypeColis = async () => {
   }
 }
 
-// Chargement des utilisateurs et du type de colis à l'initialisation
+
 onMounted(async () => {
   try {
     await userStore.fetchUsers()
@@ -132,19 +132,40 @@ const cancel = () => {
 
 <style scoped>
 .container {
-  min-block-size: 100vh;
+  min-block-size: 90vh;
 }
 
 .form-container {
-  max-inline-size: 800px;
+  max-inline-size: 850px; /* Légèrement plus large */
   background-color: #fff;
-  padding: 3rem 2rem;
+  padding: 3rem 2.5rem; /* Ajout de plus d'espace interne */
   border-radius: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-floating label {
   color: #6c757d;
+  font-size: 1rem; /* Taille légèrement augmentée */
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+  padding: 1.5rem; /* Augmente la hauteur des champs */
+  font-size: 1.1rem; /* Augmente la taille du texte */
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .btn {
@@ -153,18 +174,6 @@ const cancel = () => {
 
 .btn:hover {
   background-color: #36a290;
-}
-
-.form-control,
-.form-select {
-  border: 2px solid #ddd !important;
-  transition: border-color 0.3s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #3fb59e !important;
-  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
 }
 
 .w-45 {

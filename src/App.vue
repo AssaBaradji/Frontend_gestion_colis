@@ -1,6 +1,12 @@
 <template>
   <header
-    v-if="route.path !== '/login'"
+    v-if="
+      route.path !== '/login' &&
+      route.path !== '/forgot-password' &&
+      !route.path.includes('/reset-password') &&
+      route.path !== '/Bloque' &&
+      route.path !== '/Login'
+    "
     class="navbar navbar-expand-lg navbar-dark fixed-top"
     style="background-color: #3fb59e"
   >
@@ -140,26 +146,50 @@
               {{ $t('app.nav.deliveries') }}
             </button>
           </li>
-
-          <li class="nav-item ms-5">
+          <li class="nav-item dropdown">
             <button
-              v-if="isAuthenticated"
-              @click="handleLogout"
-              class="btn btn-outline-light me-2 font-weight-bold"
+              class="btn btn-outline-light me-2 font-weight-bold dropdown-toggle"
+              id="userDropdown"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
-              <font-awesome-icon icon="sign-out-alt" class="me-2" />
-              Déconnexion
+              <font-awesome-icon icon="user" class="me-2" />
+              {{ userName }}
             </button>
-            <router-link
-              v-else
-              to="/login"
-              class="btn btn-outline-light me-2 font-weight-bold"
-              :class="{ active: activeRoute.value === '/login' }"
-              @click="setActiveRoute('/login')"
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="userDropdown"
             >
-              <font-awesome-icon icon="sign-in-alt" class="me-2" />
-              Déconnexion
-            </router-link>
+              <li>
+                <router-link
+                  to="/profile"
+                  class="dropdown-item profile-item"
+                  @click="setActiveRoute('/Profile')"
+                >
+                  <font-awesome-icon icon="user" class="me-2" />
+                  Profil
+                </router-link>
+              </li>
+
+              <li>
+                <router-link
+                  to="/Change-password"
+                  class="dropdown-item"
+                  @click="setActiveRoute('/Change-password')"
+                >
+                  <font-awesome-icon icon="lock" class="me-2" />
+                  Changer le mot de passe
+                </router-link>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+
+              <li>
+                <button @click="handleLogout" class="dropdown-item text-danger">
+                  <font-awesome-icon icon="sign-out-alt" class="me-2" />
+                  Déconnexion
+                </button>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -213,6 +243,8 @@ const userNewObject = computed(() => localStorage.getItem('userNewObject'))
 
 const authStore = useAuthStore()
 const isAuthenticated = authStore.isAuthenticated
+
+const userName = computed(() => localStorage?.getItem('userName'))
 
 function getBasePath(path) {
   const segments = path.split('/')
@@ -286,5 +318,29 @@ const handleLogout = () => {
 .active {
   color: #3fb59e;
   font-weight: bold;
+}
+.dropdown-item.profile-item {
+  font-weight: bold;
+  color: #007bff;
+  border-block-end: 1px solid #e9ecef;
+}
+
+.dropdown-item.profile-item:hover {
+  color: #0056b3;
+  background-color: #f8f9fa;
+}
+#userDropdown {
+  margin-inline-start: 5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+
+#userDropdown:hover {
+  background-color: #f0f8ff;
+  color: #0056b3;
+  border-color: #0056b3;
 }
 </style>

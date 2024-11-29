@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <h1 class="mb-4 text-center fw-bold title-margin" style="color: #3fb59e">
+    <h1 class="mb-4 text-center fw-bold" style="color: #3fb59e">
       Liste des Types de Colis
     </h1>
 
@@ -28,12 +28,12 @@
       </router-link>
     </div>
 
-    <div v-if="filteredTypes.length === 0" class="text-center">
+    <div v-if="paginatedTypes.length === 0" class="text-center">
       <p>Aucun type de colis trouvé.</p>
     </div>
 
     <div v-else class="row">
-      <div class="col-md-4 mb-4" v-for="type in filteredTypes" :key="type.id">
+      <div class="col-md-4 mb-4" v-for="type in paginatedTypes" :key="type.id">
         <div class="card shadow-sm h-100">
           <div class="card-body d-flex flex-column align-items-center">
             <div class="icon-container mb-3">
@@ -65,16 +65,34 @@
       </div>
     </div>
 
+    <div class="d-flex justify-content-center mt-4">
+      <button
+        class="btn btn-outline-secondary"
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+      >
+        <i class="fas fa-chevron-left"></i>Précédent
+      </button>
+      <span class="mx-3"> Page {{ currentPage }} sur {{ totalPages }} </span>
+      <button
+        class="btn btn-outline-secondary"
+        :disabled="currentPage === totalPages"
+        @click="currentPage++"
+      >
+        Suivant<i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
     <div
       class="modal fade"
       id="parcelTypeModal"
-      ref="parcelTypeModal"
       tabindex="-1"
       data-bs-backdrop="static"
       data-bs-keyboard="false"
       role="dialog"
       aria-labelledby="modalTitleId"
       aria-hidden="true"
+      ref="parcelTypeModal"
     >
       <div
         class="modal-dialog modal-dialog-scrollable modal-dialog-centered"
@@ -157,8 +175,15 @@ const typeStore = useTypeColisStore()
 const userStore = useUserStore()
 
 const parcelTypeModal = ref(null)
+let bootstrapModalInstance = null
 const selectedType = ref(null)
 const searchQuery = ref('')
+
+const sortBy = ref('id')
+const sortOrder = ref('asc')
+
+const currentPage = ref(1)
+const pageSize = ref(6)
 
 onMounted(async () => {
   try {
@@ -175,12 +200,17 @@ const showTypeDetails = type => {
     user => user.id === type.utilisateurId
   )
   selectedType.value = { ...type, utilisateur }
-  const modalElement = parcelTypeModal.value
-  const bootstrapModal = new Modal(modalElement)
-  bootstrapModal.show()
+
+  if (!bootstrapModalInstance) {
+    bootstrapModalInstance = new Modal(parcelTypeModal.value)
+  }
+  bootstrapModalInstance.show()
 }
 
 const closeModal = () => {
+  if (bootstrapModalInstance) {
+    bootstrapModalInstance.hide()
+  }
   selectedType.value = null
 }
 
@@ -191,10 +221,28 @@ const mappedTypes = computed(() => {
   }))
 })
 
-const filteredTypes = computed(() => {
-  return mappedTypes.value.filter(type =>
+const sortedAndFilteredTypes = computed(() => {
+  const filtered = mappedTypes.value.filter(type =>
     type.nom?.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
+
+  return filtered.sort((a, b) => {
+    const fieldA = a[sortBy.value]?.toLowerCase?.() || a[sortBy.value] || ''
+    const fieldB = b[sortBy.value]?.toLowerCase?.() || b[sortBy.value] || ''
+    if (fieldA < fieldB) return sortOrder.value === 'asc' ? -1 : 1
+    if (fieldA > fieldB) return sortOrder.value === 'asc' ? 1 : -1
+    return 0
+  })
+})
+
+const paginatedTypes = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return sortedAndFilteredTypes.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(sortedAndFilteredTypes.value.length / pageSize.value)
 })
 
 const confirmDeleteType = async id => {
@@ -203,6 +251,8 @@ const confirmDeleteType = async id => {
   )
   if (confirmed) {
     deleteType(id)
+  } else {
+    toast.warning('Suppression Annulé!')
   }
 }
 
@@ -216,7 +266,7 @@ const deleteType = async id => {
       'Erreur lors de la suppression du type de colis :',
       result.message
     )
-    toast.error(result.message)
+   toast.error("Impossible de supprimer ce type est lié à un colis.");
   }
 }
 
@@ -264,12 +314,6 @@ h1 {
   background-color: #3fb59e;
   border-color: #3fb59e;
   color: white;
-}
-
-.btn-outline-info,
-.btn-outline-secondary,
-.btn-outline-danger {
-  inline-size: 100%;
 }
 
 .modal-content {

@@ -26,7 +26,10 @@
       </router-link>
     </div>
 
-    <div v-if="filteredDeliveries.length === 0 && !loading" class="text-center">
+    <div
+      v-if="paginatedDeliveries.length === 0 && !loading"
+      class="text-center"
+    >
       <p>Aucune livraison trouvée.</p>
     </div>
 
@@ -37,9 +40,36 @@
     <table v-else class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Nom</th>
-          <th>Prénom</th>
+          <th @click="toggleSortOrder('id')" style="cursor: pointer">
+            ID
+            <span v-if="sortBy === 'id'">
+              <i
+                :class="
+                  sortOrder === 'asc' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'
+                "
+              ></i>
+            </span>
+          </th>
+          <th @click="toggleSortOrder('nom')" style="cursor: pointer">
+            Nom
+            <span v-if="sortBy === 'nom'">
+              <i
+                :class="
+                  sortOrder === 'asc' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'
+                "
+              ></i>
+            </span>
+          </th>
+          <th @click="toggleSortOrder('prenom')" style="cursor: pointer">
+            Prénom
+            <span v-if="sortBy === 'prenom'">
+              <i
+                :class="
+                  sortOrder === 'asc' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'
+                "
+              ></i>
+            </span>
+          </th>
           <th>Date de Livraison</th>
           <th>Téléphone</th>
           <th>Utilisateur</th>
@@ -48,16 +78,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="delivery in filteredDeliveries" :key="delivery.id">
+        <tr v-for="delivery in paginatedDeliveries" :key="delivery.id">
           <td>{{ delivery.id }}</td>
           <td>{{ delivery.nom }}</td>
           <td>{{ delivery.prenom }}</td>
-          <td>{{ delivery.date_livraison }}</td>
+          <td>{{ new Date(delivery.date_livraison).toLocaleDateString() }}</td>
           <td>{{ delivery.telephone }}</td>
           <td>{{ delivery.utilisateur ? delivery.utilisateur.nom : 'N/A' }}</td>
           <td>
             {{
-              delivery.expedition ? delivery.expedition.nom_destinataire : 'N/A'
+              delivery.expedition ? delivery.expedition.colis.code_colis : 'N/A'
             }}
           </td>
           <td class="text-center">
@@ -83,6 +113,24 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="d-flex justify-content-center mt-4">
+      <button
+        class="btn btn-outline-secondary"
+        :disabled="currentPage === 1"
+        @click="prevPage"
+      >
+        <i class="fas fa-chevron-left"></i> Précédent
+      </button>
+      <span class="mx-3">Page {{ currentPage }} sur {{ totalPages }}</span>
+      <button
+        class="btn btn-outline-secondary"
+        :disabled="currentPage === totalPages"
+        @click="nextPage"
+      >
+        Suivant <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -101,6 +149,11 @@ const toast = useToast()
 const deliveries = ref([])
 const loading = ref(false)
 const searchQuery = ref('')
+const sortBy = ref('id')
+const sortOrder = ref('asc')
+
+const currentPage = ref(1)
+const itemsPerPage = 5
 
 onMounted(async () => {
   loading.value = true
@@ -144,12 +197,52 @@ const filteredDeliveries = computed(() =>
   )
 )
 
+const sortedDeliveries = computed(() => {
+  const filtered = filteredDeliveries.value
+  return filtered.sort((a, b) => {
+    const fieldA = a[sortBy.value]?.toLowerCase?.() || a[sortBy.value] || ''
+    const fieldB = b[sortBy.value]?.toLowerCase?.() || b[sortBy.value] || ''
+    if (fieldA < fieldB) return sortOrder.value === 'asc' ? -1 : 1
+    if (fieldA > fieldB) return sortOrder.value === 'asc' ? 1 : -1
+    return 0
+  })
+})
+
+const totalPages = computed(() =>
+  Math.ceil(sortedDeliveries.value.length / itemsPerPage)
+)
+
+const paginatedDeliveries = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return sortedDeliveries.value.slice(start, end)
+})
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--
+}
+
+const toggleSortOrder = field => {
+  if (sortBy.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortBy.value = field
+    sortOrder.value = 'asc'
+  }
+}
+
 const confirmDelete = async id => {
   const confirmation = confirm(
     'Voulez-vous vraiment supprimer cette livraison ?'
   )
   if (confirmation) {
     await deleteDelivery(id)
+  } else {
+    toast.warning('Suppression Annulé!')
   }
 }
 
@@ -157,7 +250,6 @@ const deleteDelivery = async id => {
   try {
     await deliveryStore.deleteDelivery(id)
     toast.success('Livraison supprimée avec succès.')
-
     deliveries.value = deliveries.value.filter(delivery => delivery.id !== id)
   } catch (error) {
     console.error('Erreur lors de la suppression de la livraison :', error)

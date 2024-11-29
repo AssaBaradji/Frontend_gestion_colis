@@ -28,43 +28,63 @@
               @click="closeModal"
             ></button>
           </div>
+
           <div class="modal-body">
             <form v-if="user" class="user-details-form">
-              <div class="mb-3">
-                <label class="form-label">Nom :</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="user.nom"
-                  readonly
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Email :</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="user.email"
-                  readonly
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Rôle :</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="user.role"
-                  readonly
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Statut :</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="user.statut === 'Actif' ? 'Actif' : 'Bloqué'"
-                  readonly
-                />
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">ID :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="user.id"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Nom :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="user.nom"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Rôle :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="user.role"
+                      readonly
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Email :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="user.email"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Statut :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="user.statut === 'Actif' ? 'Actif' : 'Bloqué'"
+                      readonly
+                    />
+                  </div>
+                </div>
               </div>
             </form>
             <p v-else>Chargement...</p>
@@ -86,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useUserStore } from '@/store/userStore'
 import { useRouter, useRoute } from 'vue-router'
 import { Modal } from 'bootstrap'
@@ -124,7 +144,7 @@ onMounted(() => {
 
 <style scoped>
 .modal-content {
-  max-inline-size: 500px;
+  max-inline-size: 600px;
   margin: auto;
   border: 2px solid #3fb59e;
 }
@@ -155,6 +175,7 @@ onMounted(() => {
   border-radius: 5px;
   color: #333;
   padding: 10px;
+  inline-size: 100%;
 }
 
 .btn-secondary {

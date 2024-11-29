@@ -1,7 +1,7 @@
 
 <template>
   <div
-    class="container d-flex justify-content-center align-items-center min-vh-100"
+    class="container d-flex justify-content-center align-items-center min-vh-75"
   >
     <div v-if="isLoading" class="text-center">
       <i
@@ -131,7 +131,7 @@
             type="submit"
             :style="{ backgroundColor: primaryColor, color: textColor }"
           >
-            <i class="fas fa-save me-2"></i> Enregistrer les modifications
+            <i class="fas fa-save me-2"></i> Enregistrer
           </button>
         </div>
       </form>
@@ -202,22 +202,40 @@ const cancelEdit = () => {
 
 <style scoped>
 .container {
-  min-block-size: 100vh;
+  min-block-size: 90vh;
 }
 
 .form-container {
-  max-inline-size: 800px;
-  background-color: #f9f9f9;
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  max-inline-size: 850px; 
+  background-color: #fff;
+  padding: 3rem 2.5rem; 
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.input-group-text {
-  background-color: #3fb59e;
-  color: white;
-  min-inline-size: 160px;
-  font-weight: 600;
+.form-floating label {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+  padding: 1.5rem;
+  font-size: 1.1rem; 
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .btn {
@@ -228,20 +246,7 @@ const cancelEdit = () => {
   background-color: #36a290;
 }
 
-.form-control,
-.form-select {
-  border: 2px solid #ddd !important;
-  transition: border-color 0.3s ease;
-}
-.readonly-input {
-  background-color: #f8f9fa;
-  color: #6c757d;
-  font-weight: bold;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #3fb59e !important;
-  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+.w-45 {
+  inline-size: 45%;
 }
 </style>

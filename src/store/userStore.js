@@ -84,7 +84,20 @@ export const useUserStore = defineStore('userStore', () => {
   const userById = id => {
     return users.value.find(user => user.id === parseInt(id))
   }
-
+  const fetchUserProfile = async () => {
+    const auth = useAuthStore();
+    try {
+      const response = await axios.get('http://localhost:3000/profil', {
+        headers: {
+          Authorization: `Bearer ${auth.token}`, 
+        },
+      });
+      return response.data.user; 
+    } catch (error) {
+      console.error('Erreur lors de la récupération du profil utilisateur :', error);
+      throw error; 
+    }
+  };
   return {
     users,
     loading,
@@ -93,5 +106,6 @@ export const useUserStore = defineStore('userStore', () => {
     updateUser,
     deleteUser,
     userById,
+    fetchUserProfile
   }
 })

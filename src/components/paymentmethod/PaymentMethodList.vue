@@ -28,43 +28,71 @@
         </router-link>
       </div>
   
-      <div v-if="filteredMethods.length === 0" class="text-center">
+      <div v-if="paginatedMethods.length === 0" class="text-center">
         <p>Aucune méthode de paiement trouvée.</p>
       </div>
   
-      <div v-else class="row">
-        <div class="col-md-4 mb-4" v-for="method in filteredMethods" :key="method.id">
-          <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column align-items-center">
-              <div class="icon-container mb-3">
-                <i class="fas fa-credit-card fa-2x "></i>
-              </div>
-              <h5 class="card-title">{{ method.nom }}</h5>
-              <div class="d-flex justify-content-between mt-3 w-100">
-                <button
-                  class="btn btn-sm btn-outline-info me-2"
-                  @click="showMethodDetails(method)"
-                >
-                  <i class="fas fa-eye"></i> Détails
-                </button>
-                <router-link
-                  :to="'/payment-methods/edit/' + method.id"
-                  class="btn btn-sm btn-outline-secondary me-2"
-                >
-                  <i class="fas fa-edit"></i> Modifier
-                </router-link>
-                <button
-                  class="btn btn-sm btn-outline-danger"
-                  @click="confirmDeleteMethod(method.id)"
-                >
-                  <i class="fas fa-trash"></i> Supprimer
-                </button>
+      <div v-else>
+        <div class="row">
+          <div
+            class="col-md-4 mb-4"
+            v-for="method in paginatedMethods"
+            :key="method.id"
+          >
+            <div class="card shadow-sm h-100">
+              <div class="card-body d-flex flex-column align-items-center">
+                <div class="icon-container mb-3">
+                  <i class="fas fa-credit-card fa-2x"></i>
+                </div>
+                <h5 class="card-title">{{ method.nom }}</h5>
+                <div class="d-flex justify-content-between mt-3 w-100">
+                  <button
+                    class="btn btn-sm btn-outline-info me-2"
+                    @click="showMethodDetails(method)"
+                  >
+                    <i class="fas fa-eye"></i> Détails
+                  </button>
+                  <router-link
+                    :to="'/payment-methods/edit/' + method.id"
+                    class="btn btn-sm btn-outline-secondary me-2"
+                  >
+                    <i class="fas fa-edit"></i> Modifier
+                  </router-link>
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    @click="confirmDeleteMethod(method.id)"
+                  >
+                    <i class="fas fa-trash"></i> Supprimer
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
   
+   
+      <div class="d-flex justify-content-center mt-4">
+        <button
+          class="btn btn-outline-secondary"
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+        >
+          <i class="fas fa-chevron-left"></i>Précédent
+        </button>
+        <span class="mx-3">
+          Page {{ currentPage }} sur {{ totalPages }}
+        </span>
+        <button
+          class="btn btn-outline-secondary"
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+        >
+          Suivant<i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+  
+     
       <div
         class="modal fade"
         id="paymentMethodModal"
@@ -146,76 +174,118 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue'
-  import { usePaymentMethodStore } from '@/store/paymentMethodStore.js'
-  import { useUserStore } from '@/store/userStore.js'
-  import { useToast } from 'vue-toastification'
-  import { Modal } from 'bootstrap'
+  import { ref, computed, onMounted } from 'vue';
+  import { usePaymentMethodStore } from '@/store/paymentMethodStore.js';
+  import { useUserStore } from '@/store/userStore.js';
+  import { useToast } from 'vue-toastification';
+  import { Modal } from 'bootstrap';
   
-  const toast = useToast()
-  const paymentMethodStore = usePaymentMethodStore()
-  const userStore = useUserStore()
+  const toast = useToast();
+  const paymentMethodStore = usePaymentMethodStore();
+  const userStore = useUserStore();
   
-  const paymentMethodModal = ref(null)
-  const selectedMethod = ref(null)
-  const searchQuery = ref('')
+  const paymentMethodModal = ref(null);
+  let bootstrapModalInstance = null; 
+  const selectedMethod = ref(null);
+  const searchQuery = ref('');
+  const sortBy = ref('id'); 
+  const sortOrder = ref('asc'); 
+  
+  
+  const currentPage = ref(1);
+  const pageSize = ref(6);
   
   onMounted(async () => {
     try {
-      await paymentMethodStore.fetchPaymentMethods()
-      await userStore.fetchUsers()
+      await paymentMethodStore.fetchPaymentMethods();
+      await userStore.fetchUsers();
     } catch (error) {
-      console.error('Erreur lors du chargement des données :', error)
-      toast.error('Erreur lors du chargement des données.')
+      console.error('Erreur lors du chargement des données :', error);
+      toast.error('Erreur lors du chargement des données.');
     }
-  })
+  });
   
-  const showMethodDetails = method => {
-    const utilisateur = userStore.users.find(
-      user => user.id === method.utilisateurId
-    )
-    selectedMethod.value = { ...method, utilisateur }
-    const modalElement = paymentMethodModal.value
-    const bootstrapModal = new Modal(modalElement)
-    bootstrapModal.show()
-  }
+  const showMethodDetails = (method) => {
+    const utilisateur = userStore.users.find((user) => user.id === method.utilisateurId);
+    selectedMethod.value = { ...method, utilisateur };
+  
+    if (!bootstrapModalInstance) {
+      bootstrapModalInstance = new Modal(paymentMethodModal.value);
+    }
+    bootstrapModalInstance.show();
+  };
   
   const closeModal = () => {
-    selectedMethod.value = null
-  }
+    if (bootstrapModalInstance) {
+      bootstrapModalInstance.hide();
+    }
+    selectedMethod.value = null;
+  };
   
   const mappedMethods = computed(() => {
-    return paymentMethodStore.paymentMethods.map(method => ({
+    return paymentMethodStore.paymentMethods.map((method) => ({
       ...method,
-      utilisateur: userStore.users.find(user => user.id === method.utilisateurId),
-    }))
-  })
+      utilisateur: userStore.users.find((user) => user.id === method.utilisateurId),
+    }));
+  });
   
-  const filteredMethods = computed(() => {
-    return mappedMethods.value.filter(method =>
+  const sortedAndFilteredMethods = computed(() => {
+    const filtered = mappedMethods.value.filter((method) =>
       method.nom?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  })
+    );
   
-  const confirmDeleteMethod = async id => {
+    return filtered.sort((a, b) => {
+      const fieldA = a[sortBy.value]?.toLowerCase?.() || a[sortBy.value] || '';
+      const fieldB = b[sortBy.value]?.toLowerCase?.() || b[sortBy.value] || '';
+      if (fieldA < fieldB) return sortOrder.value === 'asc' ? -1 : 1;
+      if (fieldA > fieldB) return sortOrder.value === 'asc' ? 1 : -1;
+      return 0;
+    });
+  });
+  
+  const paginatedMethods = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value;
+    const end = start + pageSize.value;
+    return sortedAndFilteredMethods.value.slice(start, end);
+  });
+  
+  const totalPages = computed(() => {
+    return Math.ceil(sortedAndFilteredMethods.value.length / pageSize.value);
+  });
+  
+  const toggleSortOrder = (field) => {
+    if (sortBy.value === field) {
+      sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortBy.value = field;
+      sortOrder.value = 'asc';
+    }
+  };
+  
+  const confirmDeleteMethod = async (id) => {
     const confirmed = window.confirm(
       'Voulez-vous vraiment supprimer cette méthode de paiement ?'
-    )
+    );
     if (confirmed) {
-      deleteMethod(id)
+      deleteMethod(id);
+    } else {
+      toast.warning('Suppression Annulé!');
     }
-  }
+  };
   
-  const deleteMethod = async id => {
-    const result = await paymentMethodStore.deletePaymentMethod(id)
+  const deleteMethod = async (id) => {
+    const result = await paymentMethodStore.deletePaymentMethod(id);
   
     if (result.success) {
-      toast.success('Méthode de paiement supprimée avec succès !')
+      toast.success('Méthode de paiement supprimée avec succès !');
     } else {
-      console.error('Erreur lors de la suppression de la méthode de paiement :', result.error)
-      toast.error(result.error)
+      console.error(
+        'Erreur lors de la suppression de la méthode de paiement :',
+        result.error
+      );
+      toast.error("Impossible de supprimer cette methode est lié à un paiement.");;
     }
-  }
+  };
   </script>
   
   <style scoped>
@@ -244,12 +314,6 @@
     background-color: #3fb59e;
     border-color: #3fb59e;
     color: white;
-  }
-  
-  .btn-outline-info,
-  .btn-outline-secondary,
-  .btn-outline-danger {
-    inline-size: 100%;
   }
   
   .modal-content {

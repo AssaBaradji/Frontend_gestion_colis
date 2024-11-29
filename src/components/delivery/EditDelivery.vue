@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container d-flex justify-content-center align-items-center min-vh-100"
+    class="container d-flex justify-content-center align-items-center min-vh-75"
   >
     <div class="p-5 bg-white rounded-4 shadow-lg form-container">
       <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
@@ -79,7 +79,7 @@
                   :key="expedition.id"
                   :value="expedition.id"
                 >
-                  {{ expedition.nom_destinataire }}
+                  {{ expedition.colis.code_colis }}
                 </option>
               </select>
               <label for="expeditionId">
@@ -170,19 +170,40 @@ const cancelEdit = () => {
 
 <style scoped>
 .container {
-  min-block-size: 100vh;
+  min-block-size: 90vh;
 }
 
 .form-container {
-  max-inline-size: 800px;
+  max-inline-size: 850px;
   background-color: #fff;
-  padding: 3rem 2rem;
+  padding: 3rem 2.5rem;
   border-radius: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-floating label {
   color: #6c757d;
+  font-size: 1rem;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+  padding: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .btn {
@@ -191,23 +212,6 @@ const cancelEdit = () => {
 
 .btn:hover {
   background-color: #36a290;
-}
-
-.form-control,
-.form-select {
-  border: 2px solid #ddd !important;
-  transition: border-color 0.3s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #3fb59e !important;
-  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
-}
-.readonly-input {
-  background-color: #f8f9fa;
-  color: #6c757d;
-  font-weight: bold;
 }
 
 .w-45 {

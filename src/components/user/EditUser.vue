@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container d-flex justify-content-center align-items-center min-vh-100"
+    class="container d-flex justify-content-center align-items-center min-vh-75"
   >
     <div v-if="isLoading" class="text-center">
       <i
@@ -232,19 +232,40 @@ const cancelEdit = () => {
 
 <style scoped>
 .container {
-  min-block-size: 100vh;
+  min-block-size: 90vh;
 }
 
 .form-container {
-  max-inline-size: 900px;
+  max-inline-size: 850px; 
   background-color: #fff;
-  padding: 3rem 2rem;
+  padding: 3rem 2.5rem; 
   border-radius: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-floating label {
   color: #6c757d;
+  font-size: 1rem; 
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+  padding: 1.5rem; 
+  font-size: 1.1rem; 
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .btn {
@@ -255,25 +276,13 @@ const cancelEdit = () => {
   background-color: #36a290;
 }
 
-.form-control,
-.form-select {
-  border: 2px solid #ddd !important;
-  transition: border-color 0.3s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #3fb59e !important;
-  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
-}
-
 .w-45 {
   inline-size: 45%;
 }
 
 .eye-icon {
   position: absolute;
-  inset-block-start: 12px;
+  inset-block-start: 20px;
   inset-inline-end: 15px;
   font-size: 1.2rem;
   cursor: pointer;

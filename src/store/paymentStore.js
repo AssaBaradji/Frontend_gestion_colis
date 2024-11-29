@@ -121,20 +121,19 @@ export const usePaymentStore = defineStore('paymentStore', () => {
     }
   }
 
-  const deletePayment = async id => {
+  const deletePayment = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/paiements/${id}`, {
-        headers: {
-          Authorization: authToken,
-        },
-      })
-      payments.value = payments.value.filter(payment => payment.id !== id)
-      return { success: true }
+      const response = await axios.delete(`http://localhost:3000/paiements/${id}`);
+      payments.value = payments.value.filter((payment) => payment.id !== id);
+      return { success: true, message: response.data.message };
     } catch (error) {
-      console.error('Erreur lors de la suppression du paiement :', error)
-      return { success: false, error }
+      console.error("Erreur lors de la suppression du paiement :", error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data?.error || "Erreur lors de la suppression.",
+      };
     }
-  }
+  };
 
   const paymentById = id =>
     payments.value.find(payment => payment.id === parseInt(id))

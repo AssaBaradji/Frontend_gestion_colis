@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container d-flex justify-content-center align-items-center min-vh-100"
+    class="container d-flex justify-content-center align-items-center min-vh-75"
   >
     <div class="p-5 bg-white rounded-4 shadow-lg form-container">
       <h3 class="text-center mb-4 fw-bold" style="color: #3fb59e">
@@ -18,6 +18,7 @@
                 placeholder="Nom"
                 :class="{ 'is-invalid': errors.nom }"
                 required
+                @input="clearError('nom')"
               />
               <label for="nom"> <i class="fas fa-user me-2"></i>Nom </label>
               <span v-if="errors.nom" class="error-text">{{ errors.nom }}</span>
@@ -34,6 +35,7 @@
                 placeholder="Email"
                 :class="{ 'is-invalid': errors.email }"
                 required
+                @input="clearError('email')"
               />
               <label for="email">
                 <i class="fas fa-envelope me-2"></i>Email
@@ -57,6 +59,7 @@
                 :class="{ 'is-invalid': passwordError || errors.mot_de_passe }"
                 @blur="validatePassword"
                 required
+                @change="clearError('mot_de_passe')"
               />
               <label for="mot_de_passe">
                 <i class="fas fa-lock me-2"></i>Mot de Passe
@@ -84,6 +87,7 @@
                 v-model="user.role"
                 :class="{ 'is-invalid': errors.role }"
                 required
+                @change="clearError('role')"
               >
                 <option value="" disabled selected>Choisissez un rôle</option>
                 <option value="Admin">Admin</option>
@@ -106,6 +110,7 @@
             v-model="user.statut"
             :class="{ 'is-invalid': errors.statut }"
             required
+            @change="clearError('statut')"
           >
             <option value="actif">Actif</option>
             <option value="bloqué">Bloqué</option>
@@ -190,10 +195,35 @@ const validatePassword = () => {
   }
 }
 
-const addUser = async () => {
-  validatePassword()
-  if (passwordError.value) return
+const validateFields = () => {
+  const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/
+  if (!user.value.nom) {
+    errors.value.nom = 'Le nom est requis'
+  } else if (!nameRegex.test(user.value.nom)) {
+    errors.value.nom = 'Le nom ne doit contenir que des lettres'
+  } else if (user.value.nom.trim().length === 0) {
+    errors.value.nom = 'Le nom ne doit pas contenir uniquement des espaces!'
+  }
 
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  if (!user.value.email) {
+    errors.value.email = "L'email est requis"
+  } else if (!emailRegex.test(user.value.email)) {
+    errors.value.email = 'Email invalide'
+  }
+
+  if (!user.value.role) {
+    errors.value.role = 'Le rôle est requis'
+  }
+
+  if (passwordError.value) errors.value.mot_de_passe = passwordError.value
+  if (!user.value.statut) errors.value.statut = 'Le statut est requis'
+}
+
+const addUser = async () => {
+  validateFields()
+
+  if (Object.keys(errors.value).length) return
   try {
     const formattedUser = {
       ...user.value,
@@ -221,6 +251,10 @@ const addUser = async () => {
   }
 }
 
+const clearError = field => {
+  if (errors.value[field]) delete errors.value[field]
+}
+
 const cancelAdd = () => {
   toast.info("Ajout d'utilisateur annulé.")
   router.push('/users')
@@ -233,19 +267,40 @@ const togglePasswordVisibility = () => {
 
 <style scoped>
 .container {
-  min-block-size: 100vh;
+  min-block-size: 90vh;
 }
 
 .form-container {
-  max-inline-size: 800px;
+  max-inline-size: 850px;
   background-color: #fff;
-  padding: 3rem 2rem;
+  padding: 3rem 2.5rem;
   border-radius: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-floating label {
   color: #6c757d;
+  font-size: 1rem;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #ddd !important;
+  transition: border-color 0.3s ease;
+  padding: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3fb59e !important;
+  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
+}
+
+.readonly-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 .btn {
@@ -256,25 +311,13 @@ const togglePasswordVisibility = () => {
   background-color: #36a290;
 }
 
-.form-control,
-.form-select {
-  border: 2px solid #ddd !important;
-  transition: border-color 0.3s ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #3fb59e !important;
-  box-shadow: 0 0 0 0.2rem rgba(63, 181, 158, 0.25);
-}
-
 .w-45 {
   inline-size: 45%;
 }
 
 .eye-icon {
   position: absolute;
-  inset-block-start: 12px;
+  inset-block-start: 20px;
   inset-inline-end: 15px;
   font-size: 1.2rem;
   cursor: pointer;

@@ -4,14 +4,13 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
+  const user = ref(JSON.parse(localStorage.getItem('user')) || null)
   const token = ref(localStorage.getItem('token') || '')
   const refreshToken = ref(localStorage.getItem('refreshToken') || '')
   const isAuthenticated = ref(!!token.value)
   const router = useRouter()
   const userObject = ref()
-  const userRole = computed(() => userObject.value.role || '')
-
+  const userRole = computed(() => userObject.value?.role || '')
   const currentUser = computed(() => user.value)
 
   axios.interceptors.request.use(
@@ -49,16 +48,21 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       userObject.value = response.data.utilisateur
+      console.log(userObject.value.email)
+
       if (userObject.value.statut === false) {
         router.push('/Bloque')
       } else {
+        localStorage.setItem('userName', userObject.value.nom)
+        localStorage.setItem('email', userObject.value.email)
+
         token.value = response.data.token
         localStorage.setItem('token', token.value)
-        console.log('login token', token.value)
         refreshToken.value = response.data.refreshToken
         isAuthenticated.value = true
         localStorage.setItem('userNewObject', response.data.utilisateur.role)
         localStorage.setItem('refreshToken', refreshToken.value)
+
         if (response.data.utilisateur.role === 'Admin') {
           await fetchUserProfile()
         }
@@ -77,12 +81,43 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await axios.get('http://localhost:3000/utilisateurs/')
       user.value = response.data
+      localStorage.setItem('user', JSON.stringify(user.value))
     } catch (error) {
       console.error(
         'Erreur lors de la récupération du profil utilisateur :',
         error,
       )
       logout()
+    }
+  }
+
+  const updateProfile = async profile => {
+    try {
+      const response = await axios.put(
+        'http://localhost:3000/utilisateurs/profile',
+        profile,
+      )
+      user.value = response.data 
+      localStorage.setItem('user', JSON.stringify(user.value)) 
+      console.log('Profil mis à jour avec succès.')
+    } catch (error) {
+      console.error(
+        'Erreur lors de la mise à jour du profil :',
+        error.response?.data || error.message,
+      )
+      throw error
+    }
+  }
+
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      await axios.put('http://localhost:3000/utilisateurs/change-password', {
+        currentPassword,
+        newPassword,
+      })
+      console.log('Mot de passe mis à jour avec succès.')
+    } catch (error) {
+      throw error
     }
   }
 
@@ -107,8 +142,10 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false
     localStorage.removeItem('token')
     localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
     router.push({ name: 'Login' })
   }
+
   const forgotPassword = async email => {
     try {
       await axios.post('http://localhost:3000/api/forgot-password', { email })
@@ -144,10 +181,13 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isAuthenticated,
     userRole,
+    user,
     login,
     logout,
     fetchUserProfile,
-    resetPassword,
+    updateProfile,
+    changePassword,
     forgotPassword,
+    resetPassword,
   }
 })

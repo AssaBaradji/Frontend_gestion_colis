@@ -33,6 +33,15 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
+                    <label class="form-label">ID :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="parcel.id"
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-3">
                     <label class="form-label">Code Colis:</label>
                     <input
                       type="text"
@@ -59,31 +68,9 @@
                       readonly
                     />
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label">Emplacement Colis:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :value="parcel.emplacement_colis"
-                      readonly
-                    />
-                  </div>
                 </div>
 
                 <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Utilisateur:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :value="
-                        parcel.utilisateur
-                          ? parcel.utilisateur.nom
-                          : 'Non attribué'
-                      "
-                      readonly
-                    />
-                  </div>
                   <div class="mb-3">
                     <label class="form-label">Type de Colis:</label>
                     <input
@@ -106,6 +93,28 @@
                         new Date(
                           parcel.date_enregistrement
                         ).toLocaleDateString()
+                      "
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Emplacement Colis:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="parcel.emplacement_colis"
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Utilisateur:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="
+                        parcel.utilisateur
+                          ? parcel.utilisateur.nom
+                          : 'Non attribué'
                       "
                       readonly
                     />
@@ -145,7 +154,7 @@ const typeStore = useTypeColisStore()
 const router = useRouter()
 const route = useRoute()
 
-// Obtenir le colis par ID
+
 const parcel = ref(null)
 const parcelModal = ref(null)
 
@@ -153,18 +162,18 @@ const closeModal = () => {
   router.push('/parcels')
 }
 
-// Charger les données du colis avec les informations d'utilisateur et de type
+
 onMounted(async () => {
   try {
-    // Charger les colis, types et utilisateurs
+   
     await parcelStore.fetchParcels()
     await userStore.fetchUsers()
     await typeStore.fetchTypesColis()
 
-    // Récupérer le colis par ID
+   
     parcel.value = parcelStore.parcelById(route.params.id)
 
-    // Associer les informations utilisateur et typeColis
+   
     if (parcel.value) {
       parcel.value.utilisateur =
         userStore.users.find(user => user.id === parcel.value.utilisateurId) ||
@@ -172,7 +181,7 @@ onMounted(async () => {
       parcel.value.typeColis =
         typeStore.types.find(type => type.id === parcel.value.typeId) || null
 
-      // Affichez le modal
+     
       const modalElement = parcelModal.value
       const bootstrapModal = new Modal(modalElement)
       bootstrapModal.show()

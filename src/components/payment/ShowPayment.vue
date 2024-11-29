@@ -164,7 +164,17 @@ h1 {
           <div class="modal-body">
             <form v-if="payment" class="payment-details-form">
               <div class="row">
+                
                 <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">ID :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="payment.id"
+                      readonly
+                    />
+                  </div>
                   <div class="mb-3">
                     <label class="form-label">Montant :</label>
                     <input
@@ -179,7 +189,7 @@ h1 {
                     <input
                       type="text"
                       class="form-control"
-                      :value="payment.date_paiement"
+                      :value="new Date(payment.date_paiement).toLocaleDateString()"
                       readonly
                     />
                   </div>

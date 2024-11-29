@@ -61,7 +61,7 @@ export const useDeliveryStore = defineStore('deliveryStore', () => {
         ) || { nom: 'Non attribué' },
         expedition: shipmentStore.shipments.find(
           shipment => shipment.id === response.data.expeditionId
-        ) || { nom_destinataire: 'Non attribué' }
+        ) || { code_colis: 'Non attribué' }
       });
 
       await fetchDeliveries();
@@ -92,7 +92,7 @@ export const useDeliveryStore = defineStore('deliveryStore', () => {
           ) || { nom: 'Non attribué' },
           expedition: shipmentStore.shipments.find(
             shipment => shipment.id === response.data.expeditionId
-          ) || { nom_destinataire: 'Non attribué' }
+          ) || { code_colis: 'Non attribué' }
         };
         return { success: true };
       }

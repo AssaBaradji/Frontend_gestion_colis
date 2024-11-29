@@ -95,7 +95,7 @@ const togglePasswordVisibility = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  block-size: 100vh;
+  block-size: 90vh;
 }
 
 .login-form {

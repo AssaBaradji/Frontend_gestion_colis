@@ -31,7 +31,17 @@
           <div class="modal-body">
             <form v-if="shipment" class="shipment-details-form">
               <div class="row">
+                
                 <div class="col-md-6">
+                  <div class="mb-3">
+                  <label class="form-label">ID :</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    :value="shipment.id"
+                    readonly
+                  />
+                </div>
                   <div class="mb-3">
                     <label class="form-label">Nom du Destinataire:</label>
                     <input
@@ -59,15 +69,7 @@
                       readonly
                     />
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label">Utilisateur:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :value="shipment.utilisateur ? shipment.utilisateur.nom : 'Non attribué'"
-                      readonly
-                    />
-                  </div>
+                  
                 </div>
 
                 <div class="col-md-6">
@@ -85,7 +87,9 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="shipment.date_expedition"
+                      :value="
+                        new Date(shipment.date_expedition).toLocaleDateString()
+                      "
                       readonly
                     />
                   </div>
@@ -94,7 +98,24 @@
                     <input
                       type="text"
                       class="form-control"
-                      :value="shipment.colis ? shipment.colis.code_colis : 'Non attribué'"
+                      :value="
+                        shipment.colis
+                          ? shipment.colis.code_colis
+                          : 'Non attribué'
+                      "
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Utilisateur:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :value="
+                        shipment.utilisateur
+                          ? shipment.utilisateur.nom
+                          : 'Non attribué'
+                      "
                       readonly
                     />
                   </div>
@@ -149,12 +170,14 @@ onMounted(async () => {
     shipment.value = shipmentStore.shipmentById(route.params.id)
 
     if (shipment.value) {
-      shipment.value.utilisateur = userStore.users.find(
-        user => user.id === shipment.value.utilisateurId
-      ) || null
-      shipment.value.colis = parcelStore.parcels.find(
-        parcel => parcel.id === shipment.value.colisId
-      ) || null
+      shipment.value.utilisateur =
+        userStore.users.find(
+          user => user.id === shipment.value.utilisateurId
+        ) || null
+      shipment.value.colis =
+        parcelStore.parcels.find(
+          parcel => parcel.id === shipment.value.colisId
+        ) || null
 
       const modalElement = shipmentModal.value
       const bootstrapModal = new Modal(modalElement)
@@ -164,7 +187,10 @@ onMounted(async () => {
       closeModal()
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération des données pour l\'expédition:', error)
+    console.error(
+      "Erreur lors de la récupération des données pour l'expédition:",
+      error
+    )
   }
 })
 </script>
